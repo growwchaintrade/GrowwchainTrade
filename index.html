@@ -216,23 +216,31 @@
   </section>
 
   <!-- TradingView Script -->
-  <script>
+  <script type="text/javascript">
     // === TradingView Chart ===
-    let chart = new TradingView.widget({
-      container_id: "tv-chart",
-      autosize: true,
-      symbol: "BINANCE:BTCUSDT",
-      interval: "60",
-      timezone: "Asia/Kolkata",
-      theme: "dark",
-      style: "1",
-      locale: "en",
-      toolbar_bg: "#1a1a1a",
-      enable_publishing: false,
-      hide_top_toolbar: true,
-      hide_side_toolbar: false,
-      allow_symbol_change: true
-    });
+    let tvWidget = null;
+
+    function createChart(symbol = "BINANCE:BTCUSDT") {
+      if(tvWidget) tvWidget.remove(); // remove existing chart
+      tvWidget = new TradingView.widget({
+        container_id: "tv-chart",
+        width: "100%",
+        height: 400,
+        symbol: symbol,
+        interval: "60",
+        timezone: "Asia/Kolkata",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        toolbar_bg: "#1a1a1a",
+        enable_publishing: false,
+        hide_top_toolbar: true,
+        allow_symbol_change: true
+      });
+    }
+
+    // Initialize chart
+    createChart();
 
     // Coin Switcher
     const buttons = document.querySelectorAll(".chip");
@@ -240,26 +248,26 @@
       btn.addEventListener("click", () => {
         buttons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        chart.setSymbol(btn.getAttribute("data-symbol"), "60");
+        createChart(btn.getAttribute("data-symbol"));
       });
     });
 
     // TradingView Ticker
     new TradingView.widget({
-      "container_id": "tv-ticker",
-      "width": "100%",
-      "height": 50,
-      "symbols": [
+      container_id: "tv-ticker",
+      width: "100%",
+      height: 50,
+      symbols: [
         {"proName": "BINANCE:BTCUSDT","title": "BTC/USDT"},
         {"proName": "BINANCE:ETHUSDT","title": "ETH/USDT"},
         {"proName": "BINANCE:SOLUSDT","title": "SOL/USDT"},
         {"proName": "BINANCE:BNBUSDT","title": "BNB/USDT"}
       ],
-      "locale": "en",
-      "colorTheme": "dark",
-      "isTransparent": true,
-      "showSymbolLogo": true,
-      "largeChartUrl": ""
+      locale: "en",
+      colorTheme: "dark",
+      isTransparent: true,
+      showSymbolLogo: true,
+      largeChartUrl: ""
     });
   </script>
 
