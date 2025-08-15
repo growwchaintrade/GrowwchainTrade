@@ -141,22 +141,22 @@
     <div class="wrap">
       <h2>Latest Signals</h2>
       <p class="muted">For education only — not financial advice.</p>
-      <div class="cards">
+      <div class="cards" id="signals-container">
         <article class="signal">
           <div class="sig-top"><span class="tag">BTC/USDT</span><span class="side long">LONG</span><time>Updated</time></div>
           <div class="sig-body">
-            <div><label>Entry</label><strong>Zone 1</strong></div>
-            <div><label>Stop</label><strong>Defined</strong></div>
-            <div><label>Targets</label><strong>T1 / T2</strong></div>
+            <div><label>Entry</label><strong id="btc-entry">Zone 1</strong></div>
+            <div><label>Stop</label><strong id="btc-stop">Defined</strong></div>
+            <div><label>Targets</label><strong id="btc-targets">T1 / T2</strong></div>
           </div>
           <p class="note">Replace with your live call.</p>
         </article>
         <article class="signal">
           <div class="sig-top"><span class="tag">ETH/USDT</span><span class="side short">SHORT</span><time>Updated</time></div>
           <div class="sig-body">
-            <div><label>Entry</label><strong>Zone</strong></div>
-            <div><label>Stop</label><strong>Defined</strong></div>
-            <div><label>Targets</label><strong>T1 / T2</strong></div>
+            <div><label>Entry</label><strong id="eth-entry">Zone</strong></div>
+            <div><label>Stop</label><strong id="eth-stop">Defined</strong></div>
+            <div><label>Targets</label><strong id="eth-targets">T1 / T2</strong></div>
           </div>
           <p class="note">Replace with your live call.</p>
         </article>
@@ -211,16 +211,14 @@
     </div>
   </section>
 
-  <!-- TradingView Script -->
-  <script type="text/javascript">
-    // === Scroll fade-in sections ===
+  <!-- Scripts -->
+  <script>
+    // === Scroll fade-in ===
     const sections = document.querySelectorAll('.section');
-    const observer = new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){entry.target.classList.add('show');}
-      });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('show'); } });
     }, {threshold:0.2});
-    sections.forEach(sec=>observer.observe(sec));
+    sections.forEach(sec => observer.observe(sec));
 
     // === TradingView Chart ===
     let tvWidget = null;
@@ -243,10 +241,9 @@
       });
     }
     createChart();
-    const buttons = document.querySelectorAll(".chip");
-    buttons.forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        buttons.forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         createChart(btn.getAttribute("data-symbol"));
       });
@@ -266,9 +263,37 @@
       locale:"en",
       colorTheme:"dark",
       isTransparent:true,
-      showSymbolLogo:true,
-      largeChartUrl:""
+      showSymbolLogo:true
     });
+
+    // === Live Google Sheet Updates ===
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQI4YMvF888p_5bzqS-eE0v_-svt1jv5XXqUw5RCLDTVaVOG3dYzlHK3J0vCuACwbdtZHUYfJhab8aF/pub?output=csv";
+
+    async function updateSignals() {
+      try {
+        const res = await fetch(sheetURL + "&t=" + Date.now());
+        const csv = await res.text();
+        const rows = csv.split("\n").map(r => r.split(","));
+        // Assuming CSV structure: Pair, Entry, Stop, Targets
+        rows.forEach(r => {
+          const pair = r[0]?.trim().toUpperCase();
+          if(pair === "BTC/USDT") {
+            document.getElementById("btc-entry").textContent = r[1];
+            document.getElementById("btc-stop").textContent = r[2];
+            document.getElementById("btc-targets").textContent = r[3];
+          }
+          if(pair === "ETH/USDT") {
+            document.getElementById("eth-entry").textContent = r[1];
+            document.getElementById("eth-stop").textContent = r[2];
+            document.getElementById("eth-targets").textContent = r[3];
+          }
+        });
+      } catch(err) {
+        console.error("Error updating signals:", err);
+      }
+    }
+    updateSignals();
+    setInterval(updateSignals, 30000);
   </script>
 </body>
 </html>
