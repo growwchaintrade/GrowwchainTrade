@@ -6,66 +6,76 @@
   <title>GrowwChainTrade — Signals & Community</title>
   <meta name="description" content="Grow together. High-quality crypto signals, clear entries, stop-losses and targets. Join our Telegram tribe." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css">
   <script src="https://s3.tradingview.com/tv.js"></script>
   <style>
-    /* === Basic Reset & Fonts === */
-    * {margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-    body {background:#0f0f0f;color:#fff;line-height:1.5;}
-    a {color:inherit;text-decoration:none;}
-    .wrap {max-width:1200px;margin:0 auto;padding:0 15px;}
-    .section {padding:80px 0;}
-    h1,h2,h3 {margin-bottom:20px;}
-    .btn {display:inline-block;padding:10px 25px;border-radius:8px;font-weight:600;transition:0.3s;}
-    .btn:hover {opacity:0.85;}
-    .btn.ghost {background:transparent;border:2px solid #fff;color:#fff;}
-    .btn.big {font-size:1.2rem;padding:15px 30px;}
-    .gold {color:#FFD700;}
+    /* === Reset & Fonts === */
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body{background:#0f0f0f;color:#fff;line-height:1.5;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{max-width:1200px;margin:0 auto;padding:0 15px;}
+    .section{padding:80px 0;opacity:0;transform:translateY(20px);transition:0.8s ease;}
+    .section.show{opacity:1;transform:translateY(0);}
+    h1,h2,h3{margin-bottom:20px;}
+    .btn{display:inline-block;padding:10px 25px;border-radius:8px;font-weight:600;transition:0.3s;}
+    .btn:hover{opacity:0.85;transform:scale(1.05);}
+    .btn.ghost{background:transparent;border:2px solid #fff;color:#fff;}
+    .btn.big{font-size:1.2rem;padding:15px 30px;}
+    .gold{color:#FFD700;}
     /* === Topbar & Logo === */
-    .topbar {position:sticky;top:0;width:100%;background:#111;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
-    .topbar .wrap {display:flex;align-items:center;justify-content:space-between;padding:15px 0;}
-    .brand {display:flex;align-items:center;}
-    .brand .logo {font-size:2rem;font-weight:800;margin-right:10px;background:linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-    .brand .title span {font-weight:800;}
-    .brand-color {color:#FFD700;}
-    .chain-color {color:#00FFFF;}
-    .trade-color {color:#FF69B4;}
-    .navlinks a {margin:0 10px;font-weight:600;}
-    .actions a {margin-left:10px;}
+    .topbar{position:sticky;top:0;width:100%;background:#111;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
+    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:15px 0;flex-wrap:wrap;}
+    .brand{display:flex;align-items:center;}
+    .brand .logo{font-size:2rem;font-weight:800;margin-right:10px;background:linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:logoGlow 3s infinite alternate;}
+    .brand .title span{font-weight:800;}
+    .brand-color{color:#FFD700;}
+    .chain-color{color:#00FFFF;}
+    .trade-color{color:#FF69B4;}
+    .navlinks a{margin:0 10px;font-weight:600;}
+    .actions a{margin-left:10px;}
     /* === Hero === */
-    .hero {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;}
-    .hero .left {flex:1;min-width:300px;padding-right:20px;}
-    .hero .right {flex:1;min-width:300px;background:#1a1a1a;padding:15px;border-radius:12px;}
-    .chart {height:400px;width:100%;}
-    .chips button {margin:5px;padding:5px 12px;border-radius:6px;background:#222;color:#fff;border:none;cursor:pointer;transition:0.3s;}
-    .chips button.active {background:#FFD700;color:#000;}
+    .hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;position:relative;}
+    .hero .left{flex:1;min-width:300px;padding-right:20px;}
+    .hero .right{flex:1;min-width:300px;background:#1a1a1a;padding:15px;border-radius:12px;position:relative;overflow:hidden;}
+    .chart{height:400px;width:100%;}
+    .chips button{margin:5px;padding:5px 12px;border-radius:6px;background:#222;color:#fff;border:none;cursor:pointer;transition:0.3s;}
+    .chips button.active{background:#FFD700;color:#000;box-shadow:0 0 15px #FFD700;}
     /* === Signals === */
-    .cards {display:flex;flex-wrap:wrap;gap:15px;}
-    .signal {background:#1a1a1a;padding:15px;border-radius:12px;flex:1;min-width:250px;}
-    .sig-top {display:flex;justify-content:space-between;margin-bottom:10px;}
-    .side.long {color:#00FF00;font-weight:700;}
-    .side.short {color:#FF0000;font-weight:700;}
-    .sig-body div {display:flex;justify-content:space-between;margin-bottom:5px;}
-    .note {margin-top:10px;font-size:0.9rem;color:#aaa;}
+    .cards{display:flex;flex-wrap:wrap;gap:15px;}
+    .signal{background:#1a1a1a;padding:15px;border-radius:12px;flex:1;min-width:250px;transition:0.4s;}
+    .signal:hover{transform:scale(1.02);}
+    .sig-top{display:flex;justify-content:space-between;margin-bottom:10px;}
+    .side.long{color:#00FF00;font-weight:700;}
+    .side.short{color:#FF0000;font-weight:700;}
+    .sig-body div{display:flex;justify-content:space-between;margin-bottom:5px;}
+    .note{margin-top:10px;font-size:0.9rem;color:#aaa;}
     /* === Features === */
-    .grid3 {display:flex;gap:20px;flex-wrap:wrap;}
-    .feature {background:#1a1a1a;padding:20px;border-radius:12px;flex:1;min-width:250px;text-align:center;}
+    .grid3{display:flex;gap:20px;flex-wrap:wrap;}
+    .feature{background:#1a1a1a;padding:20px;border-radius:12px;flex:1;min-width:250px;text-align:center;transition:0.3s;}
+    .feature:hover{transform:scale(1.02);}
     /* === VIP === */
-    .pricing {display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
-    .plan {background:#1a1a1a;padding:25px;border-radius:12px;flex:1;min-width:250px;position:relative;}
-    .plan.pro .pill {position:absolute;top:-10px;right:-10px;background:#FFD700;color:#000;padding:5px 10px;border-radius:12px;font-weight:700;}
-    .price {font-size:2rem;font-weight:800;margin:15px 0;}
-    .per {font-size:1rem;font-weight:400;}
+    .pricing{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+    .plan{background:#1a1a1a;padding:25px;border-radius:12px;flex:1;min-width:250px;position:relative;transition:0.3s;}
+    .plan:hover{transform:scale(1.02);}
+    .plan.pro .pill{position:absolute;top:-10px;right:-10px;background:#FFD700;color:#000;padding:5px 10px;border-radius:12px;font-weight:700;}
+    .price{font-size:2rem;font-weight:800;margin:15px 0;}
+    .per{font-size:1rem;font-weight:400;}
     /* === Contact === */
-    .contact-grid {display:flex;flex-wrap:wrap;gap:20px;}
-    .contact-card {flex:1;min-width:300px;background:#1a1a1a;padding:20px;border-radius:12px;}
-    .contact-info {flex:1;min-width:250px;padding:20px;}
-    input,textarea {width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#222;color:#fff;}
-    /* === Media Queries === */
+    .contact-grid{display:flex;flex-wrap:wrap;gap:20px;}
+    .contact-card{flex:1;min-width:300px;background:#1a1a1a;padding:20px;border-radius:12px;transition:0.3s;}
+    .contact-card:hover{transform:scale(1.02);}
+    .contact-info{flex:1;min-width:250px;padding:20px;}
+    input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#222;color:#fff;transition:0.3s;}
+    input:focus,textarea:focus{box-shadow:0 0 10px #FFD700;outline:none;}
+    /* === Background === */
+    .aurora{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(270deg,#ff0044,#00ffcc,#ffcc00);background-size:600% 600%;animation:gradientShift 20s ease infinite;z-index:-1;}
+    /* === Keyframes === */
+    @keyframes logoGlow{0%{filter:drop-shadow(0 0 5px #FFD700);}100%{filter:drop-shadow(0 0 15px #FFD700);}}
+    @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
     @media(max-width:768px){.hero{flex-direction:column;}.topbar .wrap{flex-direction:column;align-items:flex-start;}.navlinks{margin:10px 0;}}
   </style>
 </head>
 <body>
+  <div class="aurora" aria-hidden="true"></div>
 
   <!-- Topbar -->
   <header class="topbar">
@@ -91,9 +101,7 @@
         <a class="btn" href="#vip">Go VIP</a>
       </div>
     </div>
-    <div class="ticker">
-      <div id="tv-ticker"></div>
-    </div>
+    <div class="ticker"><div id="tv-ticker"></div></div>
   </header>
 
   <!-- Hero -->
@@ -157,18 +165,6 @@
     </div>
   </section>
 
-  <!-- Features -->
-  <section id="features" class="section">
-    <div class="wrap">
-      <h2>Why GrowwChainTrade?</h2>
-      <div class="grid3">
-        <div class="feature"><h3>Risk-First</h3><p>We prioritise capital preservation — 1–2% risk per trade.</p></div>
-        <div class="feature"><h3>Clear Calls</h3><p>Entry zone, hard stop, two targets and scaling rules.</p></div>
-        <div class="feature"><h3>Transparency</h3><p>Weekly PnL snapshots and accuracy tracker.</p></div>
-      </div>
-    </div>
-  </section>
-
   <!-- VIP -->
   <section id="vip" class="section">
     <div class="wrap">
@@ -196,7 +192,7 @@
       <div class="contact-card">
         <h2>Contact</h2>
         <p class="muted">Questions or VIP signups — send a message and we'll reply.</p>
-        <form action="https://formsubmit.co/newmoneytrader113@gmail.com" method="POST" class="contact-form">
+        <form action="https://formsubmit.co/newmoneytrader113@gmail.com" method="POST" class="contact-form" onsubmit="alert('Message sent!');">
           <input type="hidden" name="_subject" value="New message from GrowwChainTrade site">
           <input type="text" name="name" placeholder="Your name" required>
           <input type="email" name="email" placeholder="Email" required>
@@ -217,11 +213,19 @@
 
   <!-- TradingView Script -->
   <script type="text/javascript">
+    // === Scroll fade-in sections ===
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){entry.target.classList.add('show');}
+      });
+    }, {threshold:0.2});
+    sections.forEach(sec=>observer.observe(sec));
+
     // === TradingView Chart ===
     let tvWidget = null;
-
     function createChart(symbol = "BINANCE:BTCUSDT") {
-      if(tvWidget) tvWidget.remove(); // remove existing chart
+      if(tvWidget) tvWidget.remove();
       tvWidget = new TradingView.widget({
         container_id: "tv-chart",
         width: "100%",
@@ -234,42 +238,37 @@
         locale: "en",
         toolbar_bg: "#1a1a1a",
         enable_publishing: false,
-        hide_top_toolbar: false,   // <-- show toolbar now
+        hide_top_toolbar: false,
         allow_symbol_change: true
       });
     }
-
-    // Initialize chart
     createChart();
-
-    // Coin Switcher
     const buttons = document.querySelectorAll(".chip");
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        buttons.forEach(b => b.classList.remove("active"));
+    buttons.forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        buttons.forEach(b=>b.classList.remove("active"));
         btn.classList.add("active");
         createChart(btn.getAttribute("data-symbol"));
       });
     });
 
-    // TradingView Ticker
+    // === TradingView Ticker ===
     new TradingView.widget({
       container_id: "tv-ticker",
       width: "100%",
       height: 50,
-      symbols: [
-        {"proName": "BINANCE:BTCUSDT","title": "BTC/USDT"},
-        {"proName": "BINANCE:ETHUSDT","title": "ETH/USDT"},
-        {"proName": "BINANCE:SOLUSDT","title": "SOL/USDT"},
-        {"proName": "BINANCE:BNBUSDT","title": "BNB/USDT"}
+      symbols:[
+        {"proName":"BINANCE:BTCUSDT","title":"BTC/USDT"},
+        {"proName":"BINANCE:ETHUSDT","title":"ETH/USDT"},
+        {"proName":"BINANCE:SOLUSDT","title":"SOL/USDT"},
+        {"proName":"BINANCE:BNBUSDT","title":"BNB/USDT"}
       ],
-      locale: "en",
-      colorTheme: "dark",
-      isTransparent: true,
-      showSymbolLogo: true,
-      largeChartUrl: ""
+      locale:"en",
+      colorTheme:"dark",
+      isTransparent:true,
+      showSymbolLogo:true,
+      largeChartUrl:""
     });
   </script>
-
 </body>
 </html>
