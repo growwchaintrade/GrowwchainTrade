@@ -68,6 +68,34 @@
     input:focus,textarea:focus{box-shadow:0 0 10px #FFD700;outline:none;}
     /* === Background === */
     .aurora{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(270deg,#ff0044,#00ffcc,#ffcc00);background-size:600% 600%;animation:gradientShift 20s ease infinite;z-index:-1;}
+    /* === Founder & CEO Animation === */
+    .leadership {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .founder, .ceo {
+      background: linear-gradient(45deg, #FFD700, #FF4500, #00FFFF, #FF69B4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: rainbowText 5s linear infinite;
+    }
+
+    .founder { font-size: 1.1rem; }
+    .ceo { font-size: 1.1rem; }
+
+    @keyframes rainbowText {
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+
     /* === Keyframes === */
     @keyframes logoGlow{0%{filter:drop-shadow(0 0 5px #FFD700);}100%{filter:drop-shadow(0 0 15px #FFD700);} }
     @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;} }
@@ -87,6 +115,10 @@
             <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
           </div>
           <div class="subtitle">Together We Grow in Crypto</div>
+          <div class="leadership">
+            <span class="founder">Founder: N Prudhvi Sathya Narayana</span> | 
+            <span class="ceo">CEO: Kalikiri Kavitha</span>
+          </div>
         </div>
       </div>
       <nav class="navlinks">
@@ -126,7 +158,12 @@
           <div class="card-title">Live Chart</div>
         </div>
         <div class="chart" id="tv-chart"></div>
-        <div class="chips"></div>
+        <div class="chips">
+          <button class="chip active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
+          <button class="chip" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
+          <button class="chip" data-symbol="BINANCE:SOLUSDT">SOL/USDT</button>
+          <button class="chip" data-symbol="BINANCE:BNBUSDT">BNB/USDT</button>
+        </div>
       </div>
     </div>
   </section>
@@ -136,7 +173,26 @@
     <div class="wrap">
       <h2>Latest Signals</h2>
       <p class="muted">For education only — not financial advice.</p>
-      <div class="cards" id="signals-container"></div>
+      <div class="cards" id="signals-container">
+        <article class="signal">
+          <div class="sig-top"><span class="tag">BTC/USDT</span><span class="side long">LONG</span><time>Updated</time></div>
+          <div class="sig-body">
+            <div><label>Entry</label><strong id="btc-entry">Zone 1</strong></div>
+            <div><label>Stop</label><strong id="btc-stop">Defined</strong></div>
+            <div><label>Targets</label><strong id="btc-targets">T1 / T2</strong></div>
+          </div>
+          <p class="note">Replace with your live call.</p>
+        </article>
+        <article class="signal">
+          <div class="sig-top"><span class="tag">ETH/USDT</span><span class="side short">SHORT</span><time>Updated</time></div>
+          <div class="sig-body">
+            <div><label>Entry</label><strong id="eth-entry">Zone</strong></div>
+            <div><label>Stop</label><strong id="eth-stop">Defined</strong></div>
+            <div><label>Targets</label><strong id="eth-targets">T1 / T2</strong></div>
+          </div>
+          <p class="note">Replace with your live call.</p>
+        </article>
+      </div>
       <div class="signals-foot"><span class="muted">* Past performance is not indicative of future results.</span><a class="btn" href="#vip">Get VIP</a></div>
     </div>
   </section>
@@ -187,15 +243,16 @@
     </div>
   </section>
 
+  <!-- Scripts -->
   <script>
-    // Scroll fade-in
+    // === Scroll fade-in ===
     const sections = document.querySelectorAll('.section');
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('show'); } });
     }, {threshold:0.2});
     sections.forEach(sec => observer.observe(sec));
 
-    // TradingView chart
+    // === TradingView Chart ===
     let tvWidget = null;
     function createChart(symbol = "BINANCE:BTCUSDT") {
       if(tvWidget) tvWidget.remove();
@@ -215,8 +272,16 @@
         allow_symbol_change: true
       });
     }
+    createChart();
+    document.querySelectorAll(".chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        createChart(btn.getAttribute("data-symbol"));
+      });
+    });
 
-    // TradingView ticker
+    // === TradingView Ticker ===
     new TradingView.widget({
       container_id: "tv-ticker",
       width: "100%",
@@ -233,73 +298,32 @@
       showSymbolLogo:true
     });
 
-    // Live Google Sheet updates
+    // === Live Google Sheet Updates ===
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQI4YMvF888p_5bzqS-eE0v_-svt1jv5XXqUw5RCLDTVaVOG3dYzlHK3J0vCuACwbdtZHUYfJhab8aF/pub?output=csv";
 
     async function updateSignals() {
       try {
         const res = await fetch(sheetURL + "&t=" + Date.now());
         const csv = await res.text();
-        const rows = csv.split("\n").map(r => r.split(",")).filter(r=>r.length>1);
-
-        const signalsContainer = document.getElementById("signals-container");
-        const chipsContainer = document.querySelector(".chips");
-        chipsContainer.innerHTML = ""; // clear chips
-
+        const rows = csv.split("\n").map(r => r.split(","));
+        // Assuming CSV structure: Pair, Entry, Stop, Targets
         rows.forEach(r => {
           const pair = r[0]?.trim().toUpperCase();
-          const entry = r[1] || "N/A";
-          const stop = r[2] || "N/A";
-          const targets = r[3] || "N/A";
-          const side = r[4]?.toUpperCase() === "SHORT" ? "short" : "long";
-
-          // Update/Create signal card
-          let card = document.querySelector(`.signal[data-pair="${pair}"]`);
-          if(!card){
-            card = document.createElement("article");
-            card.classList.add("signal");
-            card.setAttribute("data-pair", pair);
-            card.innerHTML = `
-              <div class="sig-top"><span class="tag">${pair}</span><span class="side ${side}">${side.toUpperCase()}</span><time>Updated</time></div>
-              <div class="sig-body">
-                <div><label>Entry</label><strong class="entry">${entry}</strong></div>
-                <div><label>Stop</label><strong class="stop">${stop}</strong></div>
-                <div><label>Targets</label><strong class="targets">${targets}</strong></div>
-              </div>
-              <p class="note">Auto-added from sheet.</p>
-            `;
-            signalsContainer.appendChild(card);
-          } else {
-            card.querySelector(".entry").textContent = entry;
-            card.querySelector(".stop").textContent = stop;
-            card.querySelector(".targets").textContent = targets;
-            card.querySelector(".side").textContent = side.toUpperCase();
-            card.querySelector(".side").className = `side ${side}`;
+          if(pair === "BTC/USDT") {
+            document.getElementById("btc-entry").textContent = r[1];
+            document.getElementById("btc-stop").textContent = r[2];
+            document.getElementById("btc-targets").textContent = r[3];
           }
-
-          // Create chip button dynamically
-          const chip = document.createElement("button");
-          chip.classList.add("chip");
-          if(pair==="BTC/USDT") chip.classList.add("active"); // default active
-          chip.textContent = pair;
-          chip.dataset.symbol = `BINANCE:${pair.replace("/","")}`;
-          chip.addEventListener("click", () => {
-            document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-            chip.classList.add("active");
-            createChart(chip.dataset.symbol);
-          });
-          chipsContainer.appendChild(chip);
+          if(pair === "ETH/USDT") {
+            document.getElementById("eth-entry").textContent = r[1];
+            document.getElementById("eth-stop").textContent = r[2];
+            document.getElementById("eth-targets").textContent = r[3];
+          }
         });
-
-        // Ensure chart shows first pair by default
-        const firstPair = rows[0]?.[0]?.trim().toUpperCase() || "BTC/USDT";
-        createChart(`BINANCE:${firstPair.replace("/","")}`);
-
       } catch(err) {
         console.error("Error updating signals:", err);
       }
     }
-
     updateSignals();
     setInterval(updateSignals, 30000);
   </script>
