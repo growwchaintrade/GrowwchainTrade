@@ -1,173 +1,159 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GrowwChainTrade — Signals & Community</title>
-<meta name="description" content="Grow together. High-quality crypto signals, clear entries, stop-losses and targets. Join our Telegram tribe." />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GrowwChainTrade - Real-time crypto trading signals and market insights.">
+  <meta name="keywords" content="crypto, trading signals, bitcoin, ethereum, trading platform">
+  <title>GrowwChainTrade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ====== Reset & Fonts ====== */
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif; }
+    body { background-color: #F5F5F5; color: #1B263B; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ====== Header ====== */
+    header { background-color: #1B263B; color: white; padding: 20px 50px; display:flex; justify-content:space-between; align-items:center; }
+    header .logo { font-size: 1.8rem; font-weight: bold; color: #00FF7F; }
+    nav a { margin-left: 20px; font-weight: 500; transition: color 0.3s; }
+    nav a:hover { color: #00FF7F; }
+
+    /* ====== Hero Section ====== */
+    .hero { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:100px 20px; background: linear-gradient(90deg, #1B263B 0%, #273C75 100%); color:white; }
+    .hero h1 { font-size: 2.8rem; margin-bottom:20px; }
+    .hero p { font-size:1.2rem; margin-bottom:30px; max-width:600px; }
+    .hero .cta-btn { background-color:#00FF7F; color:#1B263B; padding:15px 30px; border:none; border-radius:8px; font-size:1rem; cursor:pointer; transition: transform 0.3s; }
+    .hero .cta-btn:hover { transform: scale(1.05); }
+
+    /* ====== Features ====== */
+    .features { padding:80px 20px; display:flex; justify-content: space-around; flex-wrap:wrap; gap:30px; max-width:1200px; margin:0 auto; }
+    .feature-card { background:white; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); flex:1 1 250px; text-align:center; transition: transform 0.3s; }
+    .feature-card:hover { transform: translateY(-10px); }
+    .feature-card h3 { margin-bottom:15px; color:#1B263B; }
+    .feature-card p { font-size:0.95rem; color:#555; }
+
+    /* ====== Signals Section ====== */
+    .signals { padding:80px 20px; max-width:1000px; margin:0 auto; text-align:center; }
+    .signals h2 { font-size:2rem; margin-bottom:40px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:12px 15px; border:1px solid #ddd; }
+    th { background-color:#1B263B; color:white; }
+    td { background-color:white; color:#1B263B; }
+    tr:hover td { background-color:#00FF7F; color:white; transition:0.3s; }
+
+    /* ====== Testimonials ====== */
+    .testimonials { padding:80px 20px; background:#E5E5E5; text-align:center; }
+    .testimonials h2 { font-size:2rem; margin-bottom:50px; }
+    .testimonial-cards { display:flex; justify-content: space-around; flex-wrap:wrap; gap:30px; max-width:1200px; margin:0 auto; }
+    .testimonial-card { background:white; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); flex:1 1 250px; }
+    .testimonial-card p { font-size:0.95rem; margin-bottom:15px; color:#555; }
+    .testimonial-card h4 { font-weight:bold; color:#1B263B; }
+
+    /* ====== Footer ====== */
+    footer { background:#1B263B; color:white; text-align:center; padding:30px 20px; }
+
+    /* ====== Responsive ====== */
+    @media(max-width:768px) { 
+      .hero h1 { font-size:2rem; }
+      .hero p { font-size:1rem; }
+      .features, .testimonial-cards { flex-direction:column; align-items:center; }
+    }
+  </style>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true"></div>
 
-  <header class="topbar">
-    <div class="wrap">
-      <div class="brand">
-        <div class="logo">G</div>
-        <div class="text">
-          <div class="title">GrowwChainTrade</div>
-          <div class="subtitle">Together We Grow in Crypto</div>
-        </div>
-      </div>
-      <nav class="navlinks">
-        <a href="#home">Home</a>
-        <a href="#signals">Signals</a>
-        <a href="#features">Features</a>
-        <a href="#vip">VIP</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <div class="actions">
-        <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Free Channel</a>
-        <a class="btn" href="#vip">Go VIP</a>
-      </div>
-    </div>
-    <div class="ticker">
-      <div id="tv-ticker"></div>
-    </div>
+  <!-- Header -->
+  <header>
+    <div class="logo">GrowwChainTrade</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#signals">Signals</a>
+      <a href="#testimonials">Testimonials</a>
+    </nav>
   </header>
 
-  <main>
-    <section id="home" class="hero section reveal">
-      <div class="wrap grid">
-        <div class="left">
-          <h1>Premium <span class="gold">Crypto Signals</span><br>for the <span class="gold">Tribe</span></h1>
-          <p class="lead">Actionable entries, strict risk controls, and transparent performance — we grow together.</p>
-          <div class="cta-row">
-            <a class="btn big" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Telegram</a>
-            <a class="btn ghost" href="#signals">View Signals</a>
-          </div>
-          <div class="badges">
-            <span>BTC · ETH · SOL</span>
-            <span>Accuracy Tracker</span>
-            <span>Risk-First</span>
-          </div>
-        </div>
-        <div class="right card">
-          <div class="card-head">
-            <div class="dots"><span class="dot g"></span><span class="dot y"></span><span class="dot r"></span></div>
-            <div class="card-title">Live Chart</div>
-          </div>
-          <div class="chart" id="tv-chart"></div>
-          <div class="chips">
-            <button class="chip active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
-            <button class="chip" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
-            <button class="chip" data-symbol="BINANCE:SOLUSDT">SOL/USDT</button>
-            <button class="chip" data-symbol="BINANCE:BNBUSDT">BNB/USDT</button>
-          </div>
-        </div>
-      </div>
-    </section>
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Real-Time Crypto Trading Signals</h1>
+    <p>Get accurate buy/sell signals and market insights to maximize your crypto trading profits with GrowwChainTrade.</p>
+    <button class="cta-btn">Get Signals Now</button>
+  </section>
 
-    <section id="signals" class="section reveal">
-      <div class="wrap">
-        <h2>Latest Signals</h2>
-        <p class="muted">For education only — not financial advice.</p>
-        <div class="cards">
-          <article class="signal">
-            <div class="sig-top"><span class="tag">BTC/USDT</span><span class="side long">LONG</span><time>Updated</time></div>
-            <div class="sig-body">
-              <div><label>Entry</label><strong>Zone 1</strong></div>
-              <div><label>Stop</label><strong>Defined</strong></div>
-              <div><label>Targets</label><strong>T1 / T2</strong></div>
-            </div>
-            <p class="note">Replace with your live call.</p>
-          </article>
-          <article class="signal">
-            <div class="sig-top"><span class="tag">ETH/USDT</span><span class="side short">SHORT</span><time>Updated</time></div>
-            <div class="sig-body">
-              <div><label>Entry</label><strong>Zone</strong></div>
-              <div><label>Stop</label><strong>Defined</strong></div>
-              <div><label>Targets</label><strong>T1 / T2</strong></div>
-            </div>
-            <p class="note">Replace with your live call.</p>
-          </article>
-        </div>
-        <div class="signals-foot"><span class="muted">* Past performance is not indicative of future results.</span><a class="btn" href="#vip">Get VIP</a></div>
-      </div>
-    </section>
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="feature-card">
+      <h3>Auto Buy/Sell Signals</h3>
+      <p>Receive real-time buy and sell signals for Bitcoin, Ethereum, and other cryptocurrencies directly on your dashboard.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Real-Time Market Insights</h3>
+      <p>Stay ahead with up-to-date market trends, price alerts, and detailed analysis to make smarter trading decisions.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Secure Platform</h3>
+      <p>Our platform ensures secure and reliable signal delivery while keeping your trading data safe and private.</p>
+    </div>
+  </section>
 
-    <section id="features" class="section reveal">
-      <div class="wrap">
-        <h2>Why GrowwChainTrade?</h2>
-        <div class="grid3">
-          <div class="feature"><h3>Risk-First</h3><p>We prioritise capital preservation — 1–2% risk per trade.</p></div>
-          <div class="feature"><h3>Clear Calls</h3><p>Entry zone, hard stop, two targets and scaling rules.</p></div>
-          <div class="feature"><h3>Transparency</h3><p>Weekly PnL snapshots and accuracy tracker.</p></div>
-        </div>
-      </div>
-    </section>
+  <!-- Signals Section -->
+  <section class="signals" id="signals">
+    <h2>Latest Trading Signals</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Crypto</th>
+          <th>Signal</th>
+          <th>Price</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>BTC/USD</td>
+          <td>Buy</td>
+          <td>$30,500</td>
+          <td>15:30</td>
+        </tr>
+        <tr>
+          <td>ETH/USD</td>
+          <td>Sell</td>
+          <td>$2,050</td>
+          <td>15:32</td>
+        </tr>
+        <tr>
+          <td>BNB/USD</td>
+          <td>Buy</td>
+          <td>$320</td>
+          <td>15:35</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
-    <section id="vip" class="section reveal">
-      <div class="wrap">
-        <h2>VIP Membership</h2>
-        <div class="pricing">
-          <div class="plan">
-            <h3>Free Community</h3>
-            <ul><li>BTC/ETH updates</li><li>2–3 sample signals/week</li><li>Education</li></ul>
-            <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Free</a>
-          </div>
-          <div class="plan pro">
-            <div class="pill">Popular</div>
-            <h3>VIP Signals</h3>
-            <p class="price">₹999 <span class="per">/month</span></p>
-            <ul><li>2–5 premium signals/day</li><li>Priority support</li><li>Weekly report</li></ul>
-            <a class="btn" href="#contact">Join VIP</a>
-          </div>
-        </div>
+  <!-- Testimonials Section -->
+  <section class="testimonials" id="testimonials">
+    <h2>What Our Users Say</h2>
+    <div class="testimonial-cards">
+      <div class="testimonial-card">
+        <p>"GrowwChainTrade helped me double my crypto profits in just one month! Highly recommended."</p>
+        <h4>- Rajesh K.</h4>
       </div>
-    </section>
-
-    <section id="contact" class="section reveal">
-      <div class="wrap contact-grid">
-        <div class="contact-card">
-          <h2>Contact</h2>
-          <p class="muted">Questions or VIP signups — send a message and we'll reply.</p>
-          <form action="https://formsubmit.co/newmoneytrader113@gmail.com" method="POST" class="contact-form">
-            <input type="hidden" name="_subject" value="New message from GrowwChainTrade site">
-            <input type="text" name="name" placeholder="Your name" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <textarea name="message" rows="5" placeholder="Message" required></textarea>
-            <button type="submit" class="btn">Send Message</button>
-          </form>
-        </div>
-        <div class="contact-info">
-          <h3>Quick Links</h3>
-          <ul>
-            <li>Telegram (Free): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join</a></li>
-            <li>Telegram (VIP): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join VIP</a></li>
-            <li>Email: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></li>
-          </ul>
-          <p class="muted">Payments: UPI / Razorpay / Stripe / Coinbase Commerce — link inside VIP setup.</p>
-        </div>
+      <div class="testimonial-card">
+        <p>"The signals are accurate and reliable. I feel more confident trading with their guidance."</p>
+        <h4>- Ananya P.</h4>
       </div>
-    </section>
-
-    <section id="disclaimer" class="section reveal">
-      <div class="wrap">
-        <h2>Disclaimer</h2>
-        <div class="box">The information provided on this website is for <strong>educational purposes only</strong> and does not constitute financial advice. Cryptocurrency trading involves significant risk.</div>
+      <div class="testimonial-card">
+        <p>"A secure and easy-to-use platform for both beginners and experienced traders."</p>
+        <h4>- Sameer V.</h4>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
-  <footer class="footer">
-    <div class="wrap foot-wrap"><div>© <span id="year"></span> GrowwChainTrade. All rights reserved.</div><div class="links"><a href="#disclaimer">Disclaimer</a><a href="#contact">Contact</a></div></div>
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 GrowwChainTrade | All Rights Reserved
   </footer>
 
-<script src="assets/app.js"></script>
-<script type="text/javascript">
-(function(){var s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';s.async=true;s.innerHTML=JSON.stringify({symbols:[{proName:'BINANCE:BTCUSDT',title:'BTC/USDT'},{proName:'BINANCE:ETHUSDT',title:'ETH/USDT'},{proName:'BINANCE:SOLUSDT',title:'SOL/USDT'}],showSymbolLogo:true,colorTheme:'dark',isTransparent:true,displayMode:'adaptive',locale:'en'});document.getElementById('tv-ticker').appendChild(s);})();
-</script>
 </body>
 </html>
