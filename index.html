@@ -24,7 +24,7 @@
     /* === Topbar & Logo === */
     .topbar{position:sticky;top:0;width:100%;background:#111;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
     .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:15px 0;flex-wrap:wrap;}
-    .brand{display:flex;align-items:center;flex-direction:column;}
+    .brand{display:flex;align-items:center;}
     .brand .logo{font-size:2rem;font-weight:800;margin-right:10px;background:linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:logoGlow 3s infinite alternate;}
     .brand .title span{font-weight:800;}
     .brand-color{color:#FFD700;}
@@ -32,7 +32,7 @@
     .trade-color{color:#FF69B4;}
     .navlinks a{margin:0 10px;font-weight:600;}
     .actions a{margin-left:10px;}
-    /* === Founder & CEO Animation === */
+    /* === Founder & CEO Names === */
     .leadership {
       font-size: 1rem;
       font-weight: 700;
@@ -42,18 +42,22 @@
       gap: 20px;
       justify-content: center;
       align-items: center;
-      position: relative;
     }
     .leadership span {
       position: relative;
-      background: linear-gradient(45deg, #FFD700, #FF4500, #00FFFF, #FF69B4);
+      background: linear-gradient(90deg, #FFD700, #FF4500, #00FFFF, #FF69B4, #7CFC00, #FF00FF);
+      background-size: 600% 600%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: floatGlow 3s ease-in-out infinite alternate;
+      animation: rainbowGlow 5s linear infinite, floatUpDown 3s ease-in-out infinite alternate;
     }
-    .leadership .ceo { animation-delay: 1.5s; }
-
-    @keyframes floatGlow {
+    .leadership .ceo { animation-delay: 2s; }
+    @keyframes rainbowGlow {
+      0% { background-position:0% 50%; }
+      50% { background-position:100% 50%; }
+      100% { background-position:0% 50%; }
+    }
+    @keyframes floatUpDown {
       0% { transform: translateY(0); text-shadow: 0 0 5px #FFD700; }
       50% { transform: translateY(-5px); text-shadow: 0 0 15px #FF69B4; }
       100% { transform: translateY(0); text-shadow: 0 0 10px #00FFFF; }
@@ -113,7 +117,7 @@
             <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
           </div>
           <div class="subtitle">Together We Grow in Crypto</div>
-          <!-- Leadership Names -->
+          <!-- Founder & CEO Names -->
           <div class="leadership">
             <span class="founder">Founder: N Prudhvi Sathya Narayana</span>
             <span class="ceo">CEO: Kalikiri Kavitha</span>
