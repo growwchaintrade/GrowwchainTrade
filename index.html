@@ -32,35 +32,22 @@
     .trade-color{color:#FF69B4;}
     .navlinks a{margin:0 10px;font-weight:600;}
     .actions a{margin-left:10px;}
-    /* === Founder & CEO Names === */
-    .leadership {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      align-items: center;
-    }
-    .leadership span {
-      position: relative;
-      background: linear-gradient(90deg, #FFD700, #FF4500, #00FFFF, #FF69B4, #7CFC00, #FF00FF);
-      background-size: 600% 600%;
+    /* === Founder & CEO Animation === */
+    .leadership{display:flex;flex-direction:column;margin-left:15px;}
+    .founder, .ceo{
+      font-weight:700;
+      font-size:0.9rem;
+      margin:2px 0;
+      background: linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4,#FF4500,#ADFF2F);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: rainbowGlow 5s linear infinite, floatUpDown 3s ease-in-out infinite alternate;
+      animation:rainbowGlow 5s linear infinite, floatUpDown 3s ease-in-out infinite alternate;
+      cursor:default;
+      transition:0.3s;
     }
-    .leadership .ceo { animation-delay: 2s; }
-    @keyframes rainbowGlow {
-      0% { background-position:0% 50%; }
-      50% { background-position:100% 50%; }
-      100% { background-position:0% 50%; }
-    }
-    @keyframes floatUpDown {
-      0% { transform: translateY(0); text-shadow: 0 0 5px #FFD700; }
-      50% { transform: translateY(-5px); text-shadow: 0 0 15px #FF69B4; }
-      100% { transform: translateY(0); text-shadow: 0 0 10px #00FFFF; }
+    .founder:hover, .ceo:hover{
+      text-shadow: 0 0 10px #fff, 0 0 20px #FFD700, 0 0 30px #FF69B4, 0 0 40px #00FFFF;
+      transform: scale(1.1);
     }
     /* === Hero === */
     .hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;position:relative;}
@@ -101,6 +88,15 @@
     /* === Keyframes === */
     @keyframes logoGlow{0%{filter:drop-shadow(0 0 5px #FFD700);}100%{filter:drop-shadow(0 0 15px #FFD700);} }
     @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+    @keyframes rainbowGlow{
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+    @keyframes floatUpDown{
+      0%{transform:translateY(0);}
+      100%{transform:translateY(-8px);}
+    }
     @media(max-width:768px){.hero{flex-direction:column;}.topbar .wrap{flex-direction:column;align-items:flex-start;}.navlinks{margin:10px 0;}}
   </style>
 </head>
@@ -117,10 +113,10 @@
             <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
           </div>
           <div class="subtitle">Together We Grow in Crypto</div>
-          <!-- Founder & CEO Names -->
+          <!-- Founder & CEO -->
           <div class="leadership">
-            <span class="founder">Founder: N Prudhvi Sathya Narayana</span>
-            <span class="ceo">CEO: Kalikiri Kavitha</span>
+            <div class="founder">Founder: N Prudhvi Sathya Narayana</div>
+            <div class="ceo">CEO: Kalikiri Kavitha</div>
           </div>
         </div>
       </div>
@@ -309,6 +305,7 @@
         const res = await fetch(sheetURL + "&t=" + Date.now());
         const csv = await res.text();
         const rows = csv.split("\n").map(r => r.split(","));
+        // Assuming CSV structure: Pair, Entry, Stop, Targets
         rows.forEach(r => {
           const pair = r[0]?.trim().toUpperCase();
           if(pair === "BTC/USDT") {
