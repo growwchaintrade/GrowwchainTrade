@@ -32,23 +32,8 @@
     .trade-color{color:#FF69B4;}
     .navlinks a{margin:0 10px;font-weight:600;}
     .actions a{margin-left:10px;}
-    /* === Founder & CEO Animation === */
-    .leadership{display:flex;flex-direction:column;margin-left:15px;}
-    .founder, .ceo{
-      font-weight:700;
-      font-size:0.9rem;
-      margin:2px 0;
-      background: linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4,#FF4500,#ADFF2F);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation:rainbowGlow 5s linear infinite, floatUpDown 3s ease-in-out infinite alternate;
-      cursor:default;
-      transition:0.3s;
-    }
-    .founder:hover, .ceo:hover{
-      text-shadow: 0 0 10px #fff, 0 0 20px #FFD700, 0 0 30px #FF69B4, 0 0 40px #00FFFF;
-      transform: scale(1.1);
-    }
+    /* === Leadership removed; layout intact === */
+    .leadership{}
     /* === Hero === */
     .hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;position:relative;}
     .hero .left{flex:1;min-width:300px;padding-right:20px;}
@@ -113,11 +98,8 @@
             <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
           </div>
           <div class="subtitle">Together We Grow in Crypto</div>
-          <!-- Founder & CEO -->
-          <div class="leadership">
-            <div class="founder">Founder: N Prudhvi Sathya Narayana</div>
-            <div class="ceo">CEO: Kalikiri Kavitha</div>
-          </div>
+          <!-- Leadership removed -->
+          <div class="leadership"></div>
         </div>
       </div>
       <nav class="navlinks">
@@ -227,7 +209,7 @@
           <input type="hidden" name="_subject" value="New message from GrowwChainTrade site">
           <input type="text" name="name" placeholder="Your name" required>
           <input type="email" name="email" placeholder="Email" required>
-          <textarea name="message" rows="5" placeholder="Message" required></textarea>
+          <textarea name="message" rows="5" placeholder="Message required"></textarea>
           <button type="submit" class="btn">Send Message</button>
         </form>
       </div>
@@ -305,7 +287,6 @@
         const res = await fetch(sheetURL + "&t=" + Date.now());
         const csv = await res.text();
         const rows = csv.split("\n").map(r => r.split(","));
-        // Assuming CSV structure: Pair, Entry, Stop, Targets
         rows.forEach(r => {
           const pair = r[0]?.trim().toUpperCase();
           if(pair === "BTC/USDT") {
