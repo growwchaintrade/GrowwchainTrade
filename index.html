@@ -2,310 +2,236 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <title>Lightweight Crypto Chart (Binance live)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GrowwChainTrade — Signals & Community</title>
-  <meta name="description" content="Grow together. High-quality crypto signals, clear entries, stop-losses and targets. Join our Telegram tribe." />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://s3.tradingview.com/tv.js"></script>
   <style>
-    /* === Reset & Fonts === */
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-    body{background:#0f0f0f;color:#fff;line-height:1.5;overflow-x:hidden;}
-    a{color:inherit;text-decoration:none;}
-    .wrap{max-width:1200px;margin:0 auto;padding:0 15px;}
-    .section{padding:80px 0;opacity:0;transform:translateY(20px);transition:0.8s ease;}
-    .section.show{opacity:1;transform:translateY(0);}
-    h1,h2,h3{margin-bottom:20px;}
-    .btn{display:inline-block;padding:10px 25px;border-radius:8px;font-weight:600;transition:0.3s;}
-    .btn:hover{opacity:0.85;transform:scale(1.05);}
-    .btn.ghost{background:transparent;border:2px solid #fff;color:#fff;}
-    .btn.big{font-size:1.2rem;padding:15px 30px;}
-    .gold{color:#FFD700;}
-    /* === Topbar & Logo === */
-    .topbar{position:sticky;top:0;width:100%;background:#111;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
-    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:15px 0;flex-wrap:wrap;}
-    .brand{display:flex;align-items:center;}
-    .brand .logo{font-size:2rem;font-weight:800;margin-right:10px;background:linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:logoGlow 3s infinite alternate;}
-    .brand .title span{font-weight:800;}
-    .brand-color{color:#FFD700;}
-    .chain-color{color:#00FFFF;}
-    .trade-color{color:#FF69B4;}
-    .navlinks a{margin:0 10px;font-weight:600;}
-    .actions a{margin-left:10px;}
-    /* === Leadership removed; layout intact === */
-    .leadership{}
-    /* === Hero === */
-    .hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;position:relative;}
-    .hero .left{flex:1;min-width:300px;padding-right:20px;}
-    .hero .right{flex:1;min-width:300px;background:#1a1a1a;padding:15px;border-radius:12px;position:relative;overflow:hidden;}
-    .chart{height:400px;width:100%;}
-    .chips button{margin:5px;padding:5px 12px;border-radius:6px;background:#222;color:#fff;border:none;cursor:pointer;transition:0.3s;}
-    .chips button.active{background:#FFD700;color:#000;box-shadow:0 0 15px #FFD700;}
-    /* === Signals === */
-    .cards{display:flex;flex-wrap:wrap;gap:15px;}
-    .signal{background:#1a1a1a;padding:15px;border-radius:12px;flex:1;min-width:250px;transition:0.4s;}
-    .signal:hover{transform:scale(1.02);}
-    .sig-top{display:flex;justify-content:space-between;margin-bottom:10px;}
-    .side.long{color:#00FF00;font-weight:700;}
-    .side.short{color:#FF0000;font-weight:700;}
-    .sig-body div{display:flex;justify-content:space-between;margin-bottom:5px;}
-    .note{margin-top:10px;font-size:0.9rem;color:#aaa;}
-    /* === Features === */
-    .grid3{display:flex;gap:20px;flex-wrap:wrap;}
-    .feature{background:#1a1a1a;padding:20px;border-radius:12px;flex:1;min-width:250px;text-align:center;transition:0.3s;}
-    .feature:hover{transform:scale(1.02);}
-    /* === VIP === */
-    .pricing{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
-    .plan{background:#1a1a1a;padding:25px;border-radius:12px;flex:1;min-width:250px;position:relative;transition:0.3s;}
-    .plan:hover{transform:scale(1.02);}
-    .plan.pro .pill{position:absolute;top:-10px;right:-10px;background:#FFD700;color:#000;padding:5px 10px;border-radius:12px;font-weight:700;}
-    .price{font-size:2rem;font-weight:800;margin:15px 0;}
-    .per{font-size:1rem;font-weight:400;}
-    /* === Contact === */
-    .contact-grid{display:flex;flex-wrap:wrap;gap:20px;}
-    .contact-card{flex:1;min-width:300px;background:#1a1a1a;padding:20px;border-radius:12px;transition:0.3s;}
-    .contact-card:hover{transform:scale(1.02);}
-    .contact-info{flex:1;min-width:250px;padding:20px;}
-    input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#222;color:#fff;transition:0.3s;}
-    input:focus,textarea:focus{box-shadow:0 0 10px #FFD700;outline:none;}
-    /* === Background === */
-    .aurora{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(270deg,#ff0044,#00ffcc,#ffcc00);background-size:600% 600%;animation:gradientShift 20s ease infinite;z-index:-1;}
-    /* === Keyframes === */
-    @keyframes logoGlow{0%{filter:drop-shadow(0 0 5px #FFD700);}100%{filter:drop-shadow(0 0 15px #FFD700);} }
-    @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
-    @keyframes rainbowGlow{
-      0%{background-position:0% 50%;}
-      50%{background-position:100% 50%;}
-      100%{background-position:0% 50%;}
-    }
-    @keyframes floatUpDown{
-      0%{transform:translateY(0);}
-      100%{transform:translateY(-8px);}
-    }
-    @media(max-width:768px){.hero{flex-direction:column;}.topbar .wrap{flex-direction:column;align-items:flex-start;}.navlinks{margin:10px 0;}}
+    html,body { height:100%; margin:0; font-family:Inter, system-ui, Arial; background:#0b1220; color:#e6eef8; }
+    .wrap { display:flex; flex-direction:column; height:100vh; }
+    .topbar { display:flex; gap:8px; align-items:center; padding:10px; background:#071023; }
+    .controls input, .controls select, .controls button { padding:6px 8px; border-radius:6px; border:none; }
+    #chart { flex:1; display:flex; }
+    #chartContainer { flex:1; background:#081426; }
+    #info { width:320px; background:#071226; padding:12px; box-shadow: -4px 0 12px rgba(0,0,0,.4); }
+    .stat { margin-bottom:8px; }
+    .small { font-size:12px; color:#9fb0c8 }
+    a { color:#7fd3ff }
+    footer { padding:8px 12px; font-size:12px; color:#9fb0c8; background:#071226 }
   </style>
+  <!-- Lightweight Charts (CDN) -->
+  <script src="https://unpkg.com/lightweight-charts@4.0.0/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true"></div>
-
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="wrap">
-      <div class="brand">
-        <div class="logo">G</div>
-        <div class="text">
-          <div class="title">
-            <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
-          </div>
-          <div class="subtitle">Together We Grow in Crypto</div>
-          <!-- Leadership removed -->
-          <div class="leadership"></div>
-        </div>
+  <div class="wrap">
+    <div class="topbar">
+      <div style="font-weight:700;">LiteChart — live crypto (Binance)</div>
+      <div class="controls" style="margin-left:12px;">
+        <label class="small">Symbol</label>
+        <input id="symbol" value="BTCUSDT" style="width:110px" />
+        <label class="small">Interval</label>
+        <select id="interval">
+          <option value="1m">1m</option>
+          <option value="5m">5m</option>
+          <option value="15m">15m</option>
+          <option value="1h">1h</option>
+          <option value="4h">4h</option>
+          <option value="1d">1d</option>
+        </select>
+        <button id="go">Load</button>
+        <button id="pause">Pause WS</button>
       </div>
-      <nav class="navlinks">
-        <a href="#home">Home</a>
-        <a href="#signals">Signals</a>
-        <a href="#features">Features</a>
-        <a href="#vip">VIP</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <div class="actions">
-        <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Free Channel</a>
-        <a class="btn" href="#vip">Go VIP</a>
-      </div>
+      <div style="margin-left:auto; font-size:13px;" class="small">Free • No account</div>
     </div>
-    <div class="ticker"><div id="tv-ticker"></div></div>
-  </header>
 
-  <!-- Hero -->
-  <section id="home" class="hero section">
-    <div class="wrap grid">
-      <div class="left">
-        <h1>Premium <span class="gold">Crypto Signals</span><br>for the <span class="gold">Tribe</span></h1>
-        <p class="lead">Actionable entries, strict risk controls, and transparent performance — we grow together.</p>
-        <div class="cta-row">
-          <a class="btn big" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Telegram</a>
-          <a class="btn ghost" href="#signals">View Signals</a>
-        </div>
-        <div class="badges">
-          <span>BTC · ETH · SOL</span>
-          <span>Accuracy Tracker</span>
-          <span>Risk-First</span>
-        </div>
-      </div>
-      <div class="right card">
-        <div class="card-head">
-          <div class="dots"><span class="dot g"></span><span class="dot y"></span><span class="dot r"></span></div>
-          <div class="card-title">Live Chart</div>
-        </div>
-        <div class="chart" id="tv-chart"></div>
-        <div class="chips">
-          <button class="chip active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
-          <button class="chip" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
-          <button class="chip" data-symbol="BINANCE:SOLUSDT">SOL/USDT</button>
-          <button class="chip" data-symbol="BINANCE:BNBUSDT">BNB/USDT</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Signals -->
-  <section id="signals" class="section">
-    <div class="wrap">
-      <h2>Latest Signals</h2>
-      <p class="muted">For education only — not financial advice.</p>
-      <div class="cards" id="signals-container">
-        <article class="signal">
-          <div class="sig-top"><span class="tag">BTC/USDT</span><span class="side long">LONG</span><time>Updated</time></div>
-          <div class="sig-body">
-            <div><label>Entry</label><strong id="btc-entry">Zone 1</strong></div>
-            <div><label>Stop</label><strong id="btc-stop">Defined</strong></div>
-            <div><label>Targets</label><strong id="btc-targets">T1 / T2</strong></div>
-          </div>
-          <p class="note">Replace with your live call.</p>
-        </article>
-        <article class="signal">
-          <div class="sig-top"><span class="tag">ETH/USDT</span><span class="side short">SHORT</span><time>Updated</time></div>
-          <div class="sig-body">
-            <div><label>Entry</label><strong id="eth-entry">Zone</strong></div>
-            <div><label>Stop</label><strong id="eth-stop">Defined</strong></div>
-            <div><label>Targets</label><strong id="eth-targets">T1 / T2</strong></div>
-          </div>
-          <p class="note">Replace with your live call.</p>
-        </article>
-      </div>
-      <div class="signals-foot"><span class="muted">* Past performance is not indicative of future results.</span><a class="btn" href="#vip">Get VIP</a></div>
-    </div>
-  </section>
-
-  <!-- VIP -->
-  <section id="vip" class="section">
-    <div class="wrap">
-      <h2>VIP Membership</h2>
-      <div class="pricing">
-        <div class="plan">
-          <h3>Free Community</h3>
-          <ul><li>BTC/ETH updates</li><li>2–3 sample signals/week</li><li>Education</li></ul>
-          <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Free</a>
-        </div>
-        <div class="plan pro">
-          <div class="pill">Popular</div>
-          <h3>VIP Signals</h3>
-          <p class="price">₹999 <span class="per">/month</span></p>
-          <ul><li>2–5 premium signals/day</li><li>Priority support</li><li>Weekly report</li></ul>
-          <a class="btn" href="#contact">Join VIP</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section id="contact" class="section">
-    <div class="wrap contact-grid">
-      <div class="contact-card">
-        <h2>Contact</h2>
-        <p class="muted">Questions or VIP signups — send a message and we'll reply.</p>
-        <form action="https://formsubmit.co/newmoneytrader113@gmail.com" method="POST" class="contact-form" onsubmit="alert('Message sent!');">
-          <input type="hidden" name="_subject" value="New message from GrowwChainTrade site">
-          <input type="text" name="name" placeholder="Your name" required>
-          <input type="email" name="email" placeholder="Email" required>
-          <textarea name="message" rows="5" placeholder="Message required"></textarea>
-          <button type="submit" class="btn">Send Message</button>
-        </form>
-      </div>
-      <div class="contact-info">
-        <h3>Quick Links</h3>
-        <ul>
-          <li>Telegram (Free): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join</a></li>
-          <li>Telegram (VIP): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join VIP</a></li>
-          <li>Email: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></li>
+    <div id="chart" >
+      <div id="chartContainer"></div>
+      <div id="info">
+        <div style="font-weight:700; margin-bottom:8px" id="title">BTCUSDT • 1m</div>
+        <div class="stat"><span class="small">Last price</span><div id="lastPrice" style="font-size:18px; margin-top:6px">—</div></div>
+        <div class="stat"><span class="small">Candle</span><div id="candle" style="margin-top:6px">—</div></div>
+        <div class="stat"><span class="small">SMA(50)</span><div id="sma50" style="margin-top:6px">—</div></div>
+        <div style="margin-top:12px;" class="small">Notes:</div>
+        <ul class="small">
+          <li>Data from Binance public APIs (free)</li>
+          <li>Deploy: GitHub Pages / Vercel / Netlify</li>
+          <li>Change symbol/interval then click <b>Load</b></li>
         </ul>
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,0.03); margin:12px 0">
+        <div class="small">Want more (indicators, drawings, alerts)? I can extend this to React or add more tools.</div>
       </div>
     </div>
-  </section>
 
-  <!-- Scripts -->
-  <script>
-    // === Scroll fade-in ===
-    const sections = document.querySelectorAll('.section');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('show'); } });
-    }, {threshold:0.2});
-    sections.forEach(sec => observer.observe(sec));
+    <footer>Lightweight Charts + Binance • Example starter</footer>
+  </div>
 
-    // === TradingView Chart ===
-    let tvWidget = null;
-    function createChart(symbol = "BINANCE:BTCUSDT") {
-      if(tvWidget) tvWidget.remove();
-      tvWidget = new TradingView.widget({
-        container_id: "tv-chart",
-        width: "100%",
-        height: 400,
-        symbol: symbol,
-        interval: "60",
-        timezone: "Asia/Kolkata",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        toolbar_bg: "#1a1a1a",
-        enable_publishing: false,
-        hide_top_toolbar: false,
-        allow_symbol_change: true
-      });
+<script>
+(async function(){
+  // DOM
+  const chartContainer = document.getElementById('chartContainer');
+  const symbolInput = document.getElementById('symbol');
+  const intervalSelect = document.getElementById('interval');
+  const goBtn = document.getElementById('go');
+  const pauseBtn = document.getElementById('pause');
+  const titleEl = document.getElementById('title');
+  const lastPriceEl = document.getElementById('lastPrice');
+  const candleEl = document.getElementById('candle');
+  const sma50El = document.getElementById('sma50');
+
+  // default
+  let ws = null;
+  let paused = false;
+
+  // Create chart
+  chartContainer.innerHTML = '';
+  const chart = LightweightCharts.createChart(chartContainer, {
+    width: chartContainer.clientWidth,
+    height: chartContainer.clientHeight,
+    layout: { backgroundColor: '#081426', textColor: '#e6eef8' },
+    grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
+    timeScale: { timeVisible: true, secondsVisible: false }
+  });
+
+  // series
+  const candleSeries = chart.addCandlestickSeries({ upColor: '#26a69a', downColor:'#ef5350', borderVisible:false, wickColor: '#737b86' });
+  const volumeSeries = chart.addHistogramSeries({
+    color: '#26a69a', priceFormat: { type: 'volume' }, scaleMargins: { top: 0.8, bottom: 0 }
+  });
+  const smaSeries = chart.addLineSeries({ color: '#f4d35e', lineWidth: 2 });
+
+  // resize handling
+  window.addEventListener('resize', () => {
+    chart.applyOptions({ width: chartContainer.clientWidth, height: chartContainer.clientHeight });
+  });
+
+  // helpers
+  function apiKlines(symbol, interval, limit=500){
+    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
+    return fetch(url).then(r => r.json());
+  }
+
+  function toLightK(line){
+    // kline array: [ openTime, open, high, low, close, volume, closeTime, ... ]
+    return {
+      time: Math.floor(line[0] / 1000),
+      open: parseFloat(line[1]),
+      high: parseFloat(line[2]),
+      low: parseFloat(line[3]),
+      close: parseFloat(line[4]),
+      volume: parseFloat(line[5])
+    };
+  }
+
+  function computeSMA(data, length=50){
+    const sma = [];
+    let sum = 0;
+    for(let i=0;i<data.length;i++){
+      const v = data[i].close;
+      sum += v;
+      if(i >= length) sum -= data[i-length].close;
+      if(i >= length-1) sma.push({ time: data[i].time, value: sum/length });
     }
-    createChart();
-    document.querySelectorAll(".chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        createChart(btn.getAttribute("data-symbol"));
-      });
-    });
+    // align: sma length is data.length - (length-1). We'll return sparse map for series.setData usage.
+    return sma;
+  }
 
-    // === TradingView Ticker ===
-    new TradingView.widget({
-      container_id: "tv-ticker",
-      width: "100%",
-      height: 50,
-      symbols:[
-        {"proName":"BINANCE:BTCUSDT","title":"BTC/USDT"},
-        {"proName":"BINANCE:ETHUSDT","title":"ETH/USDT"},
-        {"proName":"BINANCE:SOLUSDT","title":"SOL/USDT"},
-        {"proName":"BINANCE:BNBUSDT","title":"BNB/USDT"}
-      ],
-      locale:"en",
-      colorTheme:"dark",
-      isTransparent:true,
-      showSymbolLogo:true
-    });
+  function applyDataToChart(candles){
+    const lw = candles.map(toLightK);
+    candleSeries.setData(lw);
+    volumeSeries.setData(lw.map(c=>({time:c.time, value:c.volume, color: c.close >= c.open ? '#26a69a' : '#ef5350'})));
+    const sma = computeSMA(lw, 50);
+    smaSeries.setData(sma);
+    if(lw.length) {
+      const last = lw[lw.length-1];
+      titleEl.textContent = `${symbolInput.value.toUpperCase()} • ${intervalSelect.value}`;
+      lastPriceEl.textContent = last.close.toFixed(2);
+      candleEl.textContent = `O:${last.open} H:${last.high} L:${last.low} C:${last.close}`;
+      const lastSma = sma.length ? sma[sma.length-1].value : null;
+      sma50El.textContent = lastSma ? lastSma.toFixed(2) : '—';
+    }
+  }
 
-    // === Live Google Sheet Updates ===
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQI4YMvF888p_5bzqS-eE0v_-svt1jv5XXqUw5RCLDTVaVOG3dYzlHK3J0vCuACwbdtZHUYfJhab8aF/pub?output=csv";
-
-    async function updateSignals() {
-      try {
-        const res = await fetch(sheetURL + "&t=" + Date.now());
-        const csv = await res.text();
-        const rows = csv.split("\n").map(r => r.split(","));
-        rows.forEach(r => {
-          const pair = r[0]?.trim().toUpperCase();
-          if(pair === "BTC/USDT") {
-            document.getElementById("btc-entry").textContent = r[1];
-            document.getElementById("btc-stop").textContent = r[2];
-            document.getElementById("btc-targets").textContent = r[3];
-          }
-          if(pair === "ETH/USDT") {
-            document.getElementById("eth-entry").textContent = r[1];
-            document.getElementById("eth-stop").textContent = r[2];
-            document.getElementById("eth-targets").textContent = r[3];
-          }
-        });
-      } catch(err) {
-        console.error("Error updating signals:", err);
+  // WebSocket management
+  function startWS(symbol, interval){
+    stopWS();
+    const lower = symbol.toLowerCase();
+    const stream = `${lower}@kline_${interval}`;
+    const url = `wss://stream.binance.com:9443/ws/${stream}`;
+    ws = new WebSocket(url);
+    ws.onopen = () => { console.log('WS open', url); paused = false; pauseBtn.textContent = 'Pause WS'; };
+    ws.onmessage = (evt) => {
+      if(paused) return;
+      const msg = JSON.parse(evt.data);
+      // message.k contains kline
+      const k = msg.k;
+      const light = {
+        time: Math.floor(k.t/1000),
+        open: parseFloat(k.o),
+        high: parseFloat(k.h),
+        low: parseFloat(k.l),
+        close: parseFloat(k.c),
+        volume: parseFloat(k.v)
+      };
+      // if k.x true => candle closed
+      if(k.x){
+        // append candle
+        candleSeries.update(light);
+        // append volume
+        volumeSeries.update({ time: light.time, value: light.volume, color: light.close >= light.open ? '#26a69a' : '#ef5350' });
+        // update sma by recalculating tail (cheap for demo)
+        // fetch last 51 candles from chart by storing them locally would be ideal; here we request last 200 again (simple && robust)
+        apiKlines(symbol, interval, 200).then(res => {
+          applyDataToChart(res);
+        }).catch(e=>console.warn(e));
+      } else {
+        // update current (incomplete) candle
+        candleSeries.update(light);
+        volumeSeries.update({ time: light.time, value: light.volume, color: light.close >= light.open ? '#26a69a' : '#ef5350' });
+        lastPriceEl.textContent = light.close.toFixed(2);
+        candleEl.textContent = `O:${light.open} H:${light.high} L:${light.low} C:${light.close}`;
       }
+    };
+    ws.onclose = () => { console.log('WS closed'); ws = null; pauseBtn.textContent = 'Start WS'; };
+    ws.onerror = (e) => { console.warn('WS error', e); };
+  }
+
+  function stopWS(){
+    if(ws){ ws.close(); ws = null; }
+  }
+
+  // load and init
+  async function load(symbol, interval){
+    try {
+      titleEl.textContent = `${symbol.toUpperCase()} • ${interval}`;
+      const raw = await apiKlines(symbol, interval, 500);
+      applyDataToChart(raw);
+      startWS(symbol, interval);
+    } catch(err){
+      alert('Failed to load data (CORS/network). Check console for details.');
+      console.error(err);
     }
-    updateSignals();
-    setInterval(updateSignals, 30000);
-  </script>
+  }
+
+  // UI events
+  goBtn.onclick = () => {
+    const s = symbolInput.value.trim();
+    const i = intervalSelect.value;
+    if(!s) return alert('Enter symbol like BTCUSDT');
+    load(s, i);
+  };
+
+  pauseBtn.onclick = () => {
+    if(!ws){ // start if not running
+      startWS(symbolInput.value.trim(), intervalSelect.value);
+      paused = false;
+      pauseBtn.textContent = 'Pause WS';
+      return;
+    }
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume WS' : 'Pause WS';
+  };
+
+  // initial load
+  load(symbolInput.value, intervalSelect.value);
+})();
+</script>
 </body>
 </html>
