@@ -35,9 +35,9 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .signals-table{width:100%;border-collapse:collapse;margin-top:20px;}
 .signals-table th,.signals-table td{padding:12px;text-align:center;border-bottom:1px solid #444;}
 .signals-table th{background:#161b22;color:#00ff7f;}
-.signals-table tr.buy{background:#003300;color:#00ff7f;}
-.signals-table tr.sell{background:#330000;color:#ff4d4d;}
-.signals-table tr.hold{background:#111;color:#ccc;}
+.signals-table tr.buy{background:#003300;color:#00ff7f;cursor:pointer;}
+.signals-table tr.sell{background:#330000;color:#ff4d4d;cursor:pointer;}
+.signals-table tr.hold{background:#111;color:#ccc;cursor:pointer;}
 .membership{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
 .card{background:#161b22;padding:30px;border-radius:10px;flex:1 1 250px;min-width:250px;text-align:center;}
 .card h3{font-size:1.5rem;margin-bottom:15px;color:#00ff7f;}
@@ -51,8 +51,12 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .telegram-free{background:#00ff7f;color:#000;}
 .telegram-vip{background:#ff007f;color:#fff;}
 #news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;}
-#news-ticker span{display:inline-block;margin-right:50px;animation:scroll 40s linear infinite;}
+#news-ticker span{display:inline-block;animation:scroll 80s linear infinite;}
 @keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+/* Modal */
+.modal {display:none;position:fixed;z-index:2000;padding-top:100px;left:0;top:0;width:100%;height:100%;overflow:auto;background:rgba(0,0,0,0.8);}
+.modal-content {background:#161b22;margin:auto;padding:20px;border-radius:10px;width:90%;max-width:500px;color:#fff;}
+.close {color:#ff007f;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
 footer{background:#161b22;text-align:center;padding:20px;}
 </style>
 </head>
@@ -104,7 +108,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <h2>Live Signals</h2>
 <table class="signals-table">
 <thead>
-<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Target</th><th>Status</th></tr>
+<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Target</th><th>Status</th><th>RSI</th></tr>
 </thead>
 <tbody id="signals-body">
 <!-- Live signals will appear here -->
@@ -142,6 +146,15 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <a href="https://t.me/yourVIPChannel" class="telegram-vip">Join VIP</a>
 </section>
 
+<!-- Modal -->
+<div id="signalModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Signal Details</h3>
+    <p id="modal-content-text"></p>
+  </div>
+</div>
+
 <footer>
 <p>Contact: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></p>
 <p>Signals are educational and not financial advice.</p>
@@ -155,6 +168,8 @@ const tradeEntries = document.getElementById('trade-entries');
 const signalsBody = document.getElementById('signals-body');
 const RSI_PERIOD = 14;
 let closes = [];
+let lastStatus = null;
+let signalsHistory = [];
 
 async function fetchCandles(){
   try{
@@ -198,18 +213,35 @@ function updateSignalsTable(rsi, price){
   if(rsi<30) action='buy';
   else if(rsi>70) action='sell';
   else action='hold';
-  const date = new Date().toLocaleDateString();
+  const date = new Date().toLocaleString();
   const target = action==='buy' ? (price*1.002).toFixed(2) : action==='sell' ? (price*0.998).toFixed(2) : '-';
-  signalsBody.innerHTML = `
-    <tr class="${action}">
-      <td>${date}</td>
-      <td>BTC/USDT</td>
-      <td>${price.toFixed(2)}</td>
-      <td>${target}</td>
-      <td>${action.toUpperCase()}</td>
-    </tr>
-  `;
+  
+  // Add new row only if status changed or first signal
+  if(action!==lastStatus){
+    const row = document.createElement('tr');
+    row.className = action;
+    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${target}</td><td>${action.toUpperCase()}</td><td>${rsi.toFixed(2)}</td>`;
+    signalsBody.prepend(row); // newest on top
+    lastStatus = action;
+    signalsHistory.unshift({date, coin:'BTC/USDT', entry:price.toFixed(2), target, status:action.toUpperCase(), rsi:rsi.toFixed(2)});
+  }
 }
+
+// Click row to open modal
+const modal = document.getElementById("signalModal");
+const modalText = document.getElementById("modal-content-text");
+const spanClose = document.getElementsByClassName("close")[0];
+
+signalsBody.addEventListener('click', e=>{
+  const row = e.target.closest('tr');
+  if(!row) return;
+  const cells = row.children;
+  modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nTarget: ${cells[3].textContent}\nStatus: ${cells[4].textContent}\nRSI: ${cells[5].textContent}`;
+  modal.style.display = "block";
+});
+
+spanClose.onclick = function() { modal.style.display = "none"; }
+window.onclick = function(event){ if(event.target==modal){modal.style.display="none";} }
 
 // Initial fetch & refresh every minute
 fetchCandles();
@@ -224,15 +256,16 @@ async function fetchRSS(url) {
     const parser = new DOMParser();
     const xml = parser.parseFromString(data.contents, "text/xml");
     const items = xml.querySelectorAll("item");
-    let titles = [];
+    let headlines = [];
     items.forEach((item, i) => {
-      if (i < 10) titles.push(item.querySelector("title").textContent);
+      if(i<10){
+        const title = item.querySelector("title").textContent;
+        const link = item.querySelector("link").textContent;
+        headlines.push(`<a href="${link}" target="_blank">${title}</a>`);
+      }
     });
-    return titles;
-  } catch(err){
-    console.error(err);
-    return [];
-  }
+    return headlines;
+  } catch(err){ console.error(err); return []; }
 }
 
 async function updateNewsTicker(){
