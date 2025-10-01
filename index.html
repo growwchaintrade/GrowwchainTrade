@@ -27,7 +27,7 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .charts-grid{display:grid;grid-template-columns:1fr;gap:20px;}
 .tradingview-iframe{width:100%;height:500px;border:none;border-radius:10px;}
 #btc-price{text-align:center;font-size:1.5rem;margin-bottom:15px;}
-#trade-entries{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;}
+#trade-entries{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-bottom:20px;}
 .trade-card{background:#161b22;padding:15px;border-radius:8px;text-align:center;transition:all 0.3s;}
 .trade-card.buy{box-shadow:0 0 15px #00ff7f;}
 .trade-card.sell{box-shadow:0 0 15px #ff007f;}
@@ -35,9 +35,9 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .signals-table{width:100%;border-collapse:collapse;margin-top:20px;}
 .signals-table th,.signals-table td{padding:12px;text-align:center;border-bottom:1px solid #444;}
 .signals-table th{background:#161b22;color:#00ff7f;}
-.signals-table tr.win{background:#003300;color:#00ff7f;}
-.signals-table tr.loss{background:#330000;color:#ff4d4d;}
-.signals-table tr.expired{background:#111;color:#666;}
+.signals-table tr.buy{background:#003300;color:#00ff7f;}
+.signals-table tr.sell{background:#330000;color:#ff4d4d;}
+.signals-table tr.hold{background:#111;color:#ccc;}
 .membership{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
 .card{background:#161b22;padding:30px;border-radius:10px;flex:1 1 250px;min-width:250px;text-align:center;}
 .card h3{font-size:1.5rem;margin-bottom:15px;color:#00ff7f;}
@@ -101,15 +101,13 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </section>
 
 <section id="signals">
-<h2>Latest Signals</h2>
+<h2>Live Signals</h2>
 <table class="signals-table">
 <thead>
 <tr><th>Date</th><th>Coin</th><th>Entry</th><th>Target</th><th>Status</th></tr>
 </thead>
-<tbody>
-<tr class="win"><td>01-10-2025</td><td>BTC/USDT</td><td>52000</td><td>53000</td><td>Win</td></tr>
-<tr class="loss"><td>01-10-2025</td><td>ETH/USDT</td><td>3500</td><td>3400</td><td>Loss</td></tr>
-<tr class="win"><td>30-09-2025</td><td>BNB/USDT</td><td>450</td><td>470</td><td>Win</td></tr>
+<tbody id="signals-body">
+<!-- Live signals will appear here -->
 </tbody>
 </table>
 </section>
@@ -154,6 +152,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 // BTC/USD RSI Live
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
+const signalsBody = document.getElementById('signals-body');
 const RSI_PERIOD = 14;
 let closes = [];
 
@@ -178,6 +177,7 @@ function calculateRSI(){
   const rs=avgGain/avgLoss;
   const rsi=100-(100/(1+rs));
   updateTradeEntries(rsi, closes[closes.length-1]);
+  updateSignalsTable(rsi, closes[closes.length-1]);
 }
 
 function updateTradeEntries(rsi, price){
@@ -193,22 +193,49 @@ function updateTradeEntries(rsi, price){
     </div>`;
 }
 
+function updateSignalsTable(rsi, price){
+  let action='';
+  if(rsi<30) action='buy';
+  else if(rsi>70) action='sell';
+  else action='hold';
+  const date = new Date().toLocaleDateString();
+  const target = action==='buy' ? (price*1.002).toFixed(2) : action==='sell' ? (price*0.998).toFixed(2) : '-';
+  signalsBody.innerHTML = `
+    <tr class="${action}">
+      <td>${date}</td>
+      <td>BTC/USDT</td>
+      <td>${price.toFixed(2)}</td>
+      <td>${target}</td>
+      <td>${action.toUpperCase()}</td>
+    </tr>
+  `;
+}
+
+// Initial fetch & refresh every minute
 fetchCandles();
 setInterval(fetchCandles, 60000);
 
 // RSS News Ticker
 async function fetchRSS(url) {
   try {
-    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+    const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+    const res = await fetch(proxy);
     const data = await res.json();
-    return data.items.map(item => item.title);
-  } catch (err) {
-    console.error(`Error fetching ${url}`, err);
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, "text/xml");
+    const items = xml.querySelectorAll("item");
+    let titles = [];
+    items.forEach((item, i) => {
+      if (i < 10) titles.push(item.querySelector("title").textContent);
+    });
+    return titles;
+  } catch(err){
+    console.error(err);
     return [];
   }
 }
 
-async function updateNewsTicker() {
+async function updateNewsTicker(){
   const cryptoFeed = 'https://cryptonews.com/news/feed';
   const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
   const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
@@ -219,12 +246,12 @@ async function updateNewsTicker() {
     fetchRSS(globalFeed)
   ]);
 
-  const headlines = [...cryptoNews, ...indiaNews, ...globalNews].slice(0, 30).join(' · ');
+  const headlines = [...cryptoNews,...indiaNews,...globalNews].join(' · ');
   document.getElementById('news-ticker').innerHTML = `<span>${headlines}</span>`;
 }
 
 updateNewsTicker();
-setInterval(updateNewsTicker, 600000);
+setInterval(updateNewsTicker, 600000); // refresh every 10 min
 </script>
 
 </body>
