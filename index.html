@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GrowwChainTrade</title>
+<title>GrowwChainTrade - Live RSI Signals</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
@@ -31,6 +31,7 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .trade-card{background:#161b22;padding:15px;border-radius:8px;text-align:center;transition:all 0.3s;}
 .trade-card.buy{box-shadow:0 0 15px #00ff7f;}
 .trade-card.sell{box-shadow:0 0 15px #ff007f;}
+.trade-card.hold{box-shadow:0 0 10px #666;}
 .signals-table{width:100%;border-collapse:collapse;margin-top:20px;}
 .signals-table th,.signals-table td{padding:12px;text-align:center;border-bottom:1px solid #444;}
 .signals-table th{background:#161b22;color:#00ff7f;}
@@ -77,7 +78,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 
 <section class="hero" id="hero">
 <h1>Grow Together in Crypto Trading</h1>
-<p>Real-time signals, live charts, dynamic entries, and crypto news all in one place.</p>
+<p>Live RSI-based BTC/USD entries, signals, charts, and news.</p>
 <div class="buttons">
 <a href="#telegram" class="join-free">Join Free</a>
 <a href="#membership" class="join-vip">Join VIP</a>
@@ -90,20 +91,13 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <h2>Live Crypto Charts</h2>
 <div class="charts-grid">
 <iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=60&theme=dark"></iframe>
-<iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:ETHUSDT&interval=60&theme=dark"></iframe>
-<iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BNBUSDT&interval=60&theme=dark"></iframe>
-<iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:ADAUSDT&interval=60&theme=dark"></iframe>
-<iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:SOLUSDT&interval=60&theme=dark"></iframe>
 </div>
 </section>
 
 <section id="live-btc">
-<h2>BTC/USD Entries</h2>
-<div id="btc-price">Current Price: 54000 USD</div>
-<div id="trade-entries">
-<div class="trade-card buy"><p>Buy Zone: 53800</p></div>
-<div class="trade-card sell"><p>Sell Zone: 54200</p></div>
-</div>
+<h2>BTC/USD Live RSI Entries</h2>
+<div id="btc-price">Fetching price...</div>
+<div id="trade-entries"></div>
 </section>
 
 <section id="signals">
@@ -155,5 +149,54 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <p>Signals are educational and not financial advice.</p>
 <p>&copy; 2025 GrowwChainTrade</p>
 </footer>
+
+<!-- Scripts -->
+<script>
+// RSI-based BTC/USD live entries
+const priceEl = document.getElementById('btc-price');
+const tradeEntries = document.getElementById('trade-entries');
+const RSI_PERIOD = 14;
+let closes = [];
+
+async function fetchCandles(){
+  try{
+    const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
+    const data = await res.json();
+    closes = data.map(c=>parseFloat(c[4]));
+    calculateRSI();
+  } catch(err){ console.error(err);}
+}
+
+function calculateRSI(){
+  if(closes.length < RSI_PERIOD) return;
+  let gains=0, losses=0;
+  for(let i=1;i<closes.length;i++){
+    let diff=closes[i]-closes[i-1];
+    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+  }
+  const avgGain=gains/RSI_PERIOD;
+  const avgLoss=losses/RSI_PERIOD;
+  const rs=avgGain/avgLoss;
+  const rsi=100-(100/(1+rs));
+  updateTradeEntries(rsi, closes[closes.length-1]);
+}
+
+function updateTradeEntries(rsi, price){
+  let action='';
+  if(rsi<30) action='buy';
+  else if(rsi>70) action='sell';
+  else action='hold';
+  priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
+  tradeEntries.innerHTML = `
+    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
+      <p>RSI: ${rsi.toFixed(2)}</p>
+      <p>Signal: ${action.toUpperCase()}</p>
+    </div>`;
+}
+
+// Initial fetch and refresh every minute
+fetchCandles();
+setInterval(fetchCandles, 60000);
+</script>
 </body>
 </html>
