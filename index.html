@@ -1,269 +1,299 @@
-/*
-Growwchaintrade - TradingView-style single-file React app (App.jsx)
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GrowwChainTrade — Signals & Community</title>
+  <meta name="description" content="Grow together. High-quality crypto signals, clear entries, stop-losses and targets. Join our Telegram tribe." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <style>
+    /* === Reset & Fonts === */
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body{background:#0f0f0f;color:#fff;line-height:1.5;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{max-width:1200px;margin:0 auto;padding:0 15px;}
+    .section{padding:80px 0;opacity:0;transform:translateY(20px);transition:0.8s ease;}
+    .section.show{opacity:1;transform:translateY(0);}
+    h1,h2,h3{margin-bottom:20px;}
+    .btn{display:inline-block;padding:10px 25px;border-radius:8px;font-weight:600;transition:0.3s;}
+    .btn:hover{opacity:0.85;transform:scale(1.05);}
+    .btn.ghost{background:transparent;border:2px solid #fff;color:#fff;}
+    .btn.big{font-size:1.2rem;padding:15px 30px;}
+    .gold{color:#FFD700;}
+    /* === Topbar & Logo === */
+    .topbar{position:sticky;top:0;width:100%;background:#111;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
+    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:15px 0;flex-wrap:wrap;}
+    .brand{display:flex;align-items:center;}
+    .brand .logo{font-size:2rem;font-weight:800;margin-right:10px;background:linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:logoGlow 3s infinite alternate;}
+    .brand .title span{font-weight:800;}
+    .brand-color{color:#FFD700;}
+    .chain-color{color:#00FFFF;}
+    .trade-color{color:#FF69B4;}
+    .navlinks a{margin:0 10px;font-weight:600;}
+    .actions a{margin-left:10px;}
+    /* === Hero === */
+    .hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;position:relative;}
+    .hero .left{flex:1;min-width:300px;padding-right:20px;}
+    .hero .right{flex:1;min-width:300px;background:#1a1a1a;padding:15px;border-radius:12px;position:relative;overflow:hidden;}
+    .chart{height:400px;width:100%;}
+    .chips button{margin:5px;padding:5px 12px;border-radius:6px;background:#222;color:#fff;border:none;cursor:pointer;transition:0.3s;}
+    .chips button.active{background:#FFD700;color:#000;box-shadow:0 0 15px #FFD700;}
+    /* === Signals === */
+    .cards{display:flex;flex-wrap:wrap;gap:15px;}
+    .signal{background:#1a1a1a;padding:15px;border-radius:12px;flex:1;min-width:250px;transition:0.4s;}
+    .signal:hover{transform:scale(1.02);}
+    .sig-top{display:flex;justify-content:space-between;margin-bottom:10px;}
+    .side.long{color:#00FF00;font-weight:700;}
+    .side.short{color:#FF0000;font-weight:700;}
+    .sig-body div{display:flex;justify-content:space-between;margin-bottom:5px;}
+    .note{margin-top:10px;font-size:0.9rem;color:#aaa;}
+    /* === Features === */
+    .grid3{display:flex;gap:20px;flex-wrap:wrap;}
+    .feature{background:#1a1a1a;padding:20px;border-radius:12px;flex:1;min-width:250px;text-align:center;transition:0.3s;}
+    .feature:hover{transform:scale(1.02);}
+    /* === VIP === */
+    .pricing{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+    .plan{background:#1a1a1a;padding:25px;border-radius:12px;flex:1;min-width:250px;position:relative;transition:0.3s;}
+    .plan:hover{transform:scale(1.02);}
+    .plan.pro .pill{position:absolute;top:-10px;right:-10px;background:#FFD700;color:#000;padding:5px 10px;border-radius:12px;font-weight:700;}
+    .price{font-size:2rem;font-weight:800;margin:15px 0;}
+    .per{font-size:1rem;font-weight:400;}
+    /* === Contact === */
+    .contact-grid{display:flex;flex-wrap:wrap;gap:20px;}
+    .contact-card{flex:1;min-width:300px;background:#1a1a1a;padding:20px;border-radius:12px;transition:0.3s;}
+    .contact-card:hover{transform:scale(1.02);}
+    .contact-info{flex:1;min-width:250px;padding:20px;}
+    input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#222;color:#fff;transition:0.3s;}
+    input:focus,textarea:focus{box-shadow:0 0 10px #FFD700;outline:none;}
+    /* === Background === */
+    .aurora{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(270deg,#ff0044,#00ffcc,#ffcc00);background-size:600% 600%;animation:gradientShift 20s ease infinite;z-index:-1;}
+    /* === Keyframes === */
+    @keyframes logoGlow{0%{filter:drop-shadow(0 0 5px #FFD700);}100%{filter:drop-shadow(0 0 15px #FFD700);}}
+    @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+    @media(max-width:768px){.hero{flex-direction:column;}.topbar .wrap{flex-direction:column;align-items:flex-start;}.navlinks{margin:10px 0;}}
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"></div>
 
-Setup instructions (recommended):
-1) Create a new Vite React project:
-   npm create vite@latest growwchaintrade -- --template react
-   cd growwchaintrade
-2) Install dependencies:
-   npm install lightweight-charts react-icons
-3) Install TailwindCSS (optional but recommended):
-   Follow Tailwind install for Vite: https://tailwindcss.com/docs/guides/vite
-
-Usage:
-- Replace src/App.jsx with this file contents.
-- Ensure Tailwind is configured (or replace classes with your CSS).
-- Run: npm install && npm run dev
-
-This single-file app includes:
-- Header with logo name "Growwchaintrade"
-- Dark/light theme toggle
-- Left sidebar (navigation)
-- Main area with a TradingView-style candlestick chart using lightweight-charts
-- Right sidebar watchlist with mocked real-time updates
-- Responsive layout
-
-Feel free to ask for additions: indicators, drawing tools, live data integration (WebSocket/API), login, or exportable chart images.
-*/
-
-import React, { useEffect, useRef, useState } from "react";
-import { createChart } from "lightweight-charts";
-import { FiMoon, FiSun, FiSearch, FiBell } from "react-icons/fi";
-import { AiOutlineStar } from "react-icons/ai";
-
-export default function App() {
-  const chartContainerRef = useRef(null);
-  const chartRef = useRef(null);
-  const candleSeriesRef = useRef(null);
-  const [theme, setTheme] = useState("dark");
-  const [timeframe, setTimeframe] = useState("1D");
-  const [watchlist, setWatchlist] = useState([
-    { symbol: "BTC/USDT", price: 27950, change: -0.8, id: 1 },
-    { symbol: "ETH/USDT", price: 1765, change: 1.4, id: 2 },
-    { symbol: "AAPL", price: 172.3, change: -0.3, id: 3 },
-  ]);
-
-  // Mock candlestick data (you should replace this with real API data)
-  const initialCandles = [
-    { time: "2025-09-20", open: 27500, high: 28100, low: 27400, close: 27900 },
-    { time: "2025-09-21", open: 27900, high: 28300, low: 27600, close: 28200 },
-    { time: "2025-09-22", open: 28200, high: 28500, low: 28000, close: 28150 },
-    { time: "2025-09-23", open: 28150, high: 28400, low: 27800, close: 27950 },
-    { time: "2025-09-24", open: 27950, high: 28250, low: 27600, close: 27800 },
-    { time: "2025-09-25", open: 27800, high: 28050, low: 27450, close: 27950 },
-    { time: "2025-09-26", open: 27950, high: 28350, low: 27900, close: 28200 },
-  ];
-
-  useEffect(() => {
-    // Create chart
-    if (chartContainerRef.current) {
-      // Clear if exists
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-      }
-
-      const isDark = theme === "dark";
-      const chart = createChart(chartContainerRef.current, {
-        width: chartContainerRef.current.clientWidth,
-        height: 520,
-        layout: {
-          background: { color: isDark ? "#0f1724" : "#ffffff" },
-          textColor: isDark ? "#e6eef6" : "#0b1220",
-        },
-        grid: {
-          vertLines: { color: isDark ? "#1b2430" : "#f0f0f0" },
-          horzLines: { color: isDark ? "#1b2430" : "#f0f0f0" },
-        },
-        crosshair: { mode: 1 },
-        rightPriceScale: { borderColor: isDark ? "#2b3946" : "#e6eef6" },
-        timeScale: { borderColor: isDark ? "#2b3946" : "#e6eef6" },
-      });
-
-      chartRef.current = chart;
-
-      const candleSeries = chart.addCandlestickSeries({
-        upColor: "#26a69a",
-        downColor: "#ef5350",
-        wickUpColor: "#26a69a",
-        wickDownColor: "#ef5350",
-        borderVisible: false,
-      });
-
-      candleSeries.setData(initialCandles);
-      candleSeriesRef.current = candleSeries;
-
-      // Handle resize
-      const handleResize = () => {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
-      };
-      window.addEventListener("resize", handleResize);
-
-      return () => {
-        window.removeEventListener("resize", handleResize);
-        chart.remove();
-      };
-    }
-  }, [theme, timeframe]);
-
-  // Mock real-time update for watchlist prices
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setWatchlist((prev) =>
-        prev.map((it) => {
-          const changePct = (Math.random() - 0.5) * 0.6; // -0.3% to +0.3%
-          const newPrice = +(it.price * (1 + changePct / 100)).toFixed(2);
-          return { ...it, price: newPrice, change: +(it.change + changePct).toFixed(2) };
-        })
-      );
-    }, 2500);
-    return () => clearInterval(timer);
-  }, []);
-
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
-
-  const addToWatchlist = (symbol) => {
-    setWatchlist((w) => [...w, { symbol, price: 0, change: 0, id: Date.now() }]);
-  };
-
-  return (
-    <div className={`min-h-screen ${theme === "dark" ? "bg-[#071322] text-[#e6eef6]" : "bg-white text-[#0b1220]"}`}>
-      {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-md p-2 text-white font-bold">G</div>
-            <div className="font-semibold text-lg">Growwchaintrade</div>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">G</div>
+        <div class="text">
+          <div class="title">
+            <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
           </div>
-          <div className="hidden md:flex items-center bg-transparent rounded px-2 py-1 border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-            <FiSearch />
-            <input className={`ml-2 bg-transparent outline-none ${theme === "dark" ? "placeholder-[#9fb0c4]" : "placeholder-[#6b7280]"}`} placeholder="Search symbol, e.g. BTC/USDT" />
-          </div>
+          <div class="subtitle">Together We Grow in Crypto</div>
         </div>
-
-        <div className="flex items-center gap-4">
-          <button className="hidden md:flex items-center gap-2 px-3 py-1 rounded border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-            <AiOutlineStar /> Watchlist
-          </button>
-          <button onClick={toggleTheme} className="p-2 rounded hover:opacity-90 border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-            {theme === "dark" ? <FiSun /> : <FiMoon />}
-          </button>
-          <button className="p-2 rounded border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-            <FiBell />
-          </button>
-        </div>
-      </header>
-
-      <div className="flex">
-        {/* Left Sidebar */}
-        <aside className="w-20 md:w-56 border-r px-2 py-4 hidden md:block" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
-          <nav className="flex flex-col gap-3">
-            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Dashboard</button>
-            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Markets</button>
-            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Watchlist</button>
-            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Portfolio</button>
-            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">News</button>
-          </nav>
-
-          <div className="mt-6 px-3">
-            <div className="text-sm mb-2">Timeframe</div>
-            <div className="flex gap-2">
-              {["1m", "5m", "1h", "4h", "1D"].map((tf) => (
-                <button key={tf} onClick={() => setTimeframe(tf)} className={`px-2 py-1 rounded ${timeframe === tf ? "bg-[#0ea5a0] text-white" : "border"}`}>
-                  {tf}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="flex-1 p-4">
-          <div className="rounded-lg overflow-hidden shadow-sm">
-            <div ref={chartContainerRef} className="w-full bg-transparent"></div>
-
-            {/* Toolbar below the chart */}
-            <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-              <div className="flex items-center gap-3">
-                <div className="font-semibold">BTC/USDT</div>
-                <div className="text-sm text-gray-400">Last: 27,950 • -0.8%</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1 border rounded">Indicators</button>
-                <button className="px-3 py-1 border rounded">Templates</button>
-                <button className="px-3 py-1 bg-[#0ea5a0] text-white rounded">Buy</button>
-                <button className="px-3 py-1 bg-[#ef5350] text-white rounded">Sell</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Below main area: small market cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="p-3 rounded border" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
-              <div className="text-sm">Top Gainers</div>
-              <ul className="mt-2">
-                <li>ETH • +3.4%</li>
-                <li>BNB • +2.1%</li>
-                <li>ADA • +1.9%</li>
-              </ul>
-            </div>
-
-            <div className="p-3 rounded border" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
-              <div className="text-sm">Top Losers</div>
-              <ul className="mt-2">
-                <li>XRP • -1.1%</li>
-                <li>DOGE • -0.8%</li>
-              </ul>
-            </div>
-
-            <div className="p-3 rounded border" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
-              <div className="text-sm">Market News</div>
-              <div className="mt-2 text-sm">No news loaded. Connect a news API to show headlines.</div>
-            </div>
-          </div>
-        </main>
-
-        {/* Right Sidebar */}
-        <aside className="w-80 border-l px-3 py-4 hidden lg:block" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="font-semibold">Watchlist</div>
-            <button className="text-sm">Add</button>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {watchlist.map((w) => (
-              <div key={w.id} className="flex items-center justify-between p-2 rounded border" style={{ borderColor: theme === "dark" ? "#0f2433" : "#f1f5f9" }}>
-                <div>
-                  <div className="font-medium">{w.symbol}</div>
-                  <div className="text-xs">{w.price}</div>
-                </div>
-                <div className={`text-sm ${w.change >= 0 ? "text-green-400" : "text-red-400"}`}>{w.change}%</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6">
-            <div className="text-sm mb-2">Quick Add</div>
-            <div className="flex gap-2">
-              <button onClick={() => addToWatchlist("SOL/USDT")} className="px-2 py-1 border rounded">SOL</button>
-              <button onClick={() => addToWatchlist("ADA/USDT")} className="px-2 py-1 border rounded">ADA</button>
-              <button onClick={() => addToWatchlist("XRP/USDT")} className="px-2 py-1 border rounded">XRP</button>
-            </div>
-          </div>
-        </aside>
       </div>
-
-      {/* Footer */}
-      <footer className="px-4 py-3 border-t text-sm" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>© {new Date().getFullYear()} Growwchaintrade</div>
-          <div className="hidden sm:flex gap-4">
-            <a>Contact</a>
-            <a>Privacy</a>
-            <a>Terms</a>
-          </div>
-        </div>
-      </footer>
+      <nav class="navlinks">
+        <a href="#home">Home</a>
+        <a href="#signals">Signals</a>
+        <a href="#features">Features</a>
+        <a href="#vip">VIP</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="actions">
+        <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Free Channel</a>
+        <a class="btn" href="#vip">Go VIP</a>
+      </div>
     </div>
-  );
-}
+    <div class="ticker"><div id="tv-ticker"></div></div>
+  </header>
+
+  <!-- Hero -->
+  <section id="home" class="hero section">
+    <div class="wrap grid">
+      <div class="left">
+        <h1>Premium <span class="gold">Crypto Signals</span><br>for the <span class="gold">Tribe</span></h1>
+        <p class="lead">Actionable entries, strict risk controls, and transparent performance — we grow together.</p>
+        <div class="cta-row">
+          <a class="btn big" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Telegram</a>
+          <a class="btn ghost" href="#signals">View Signals</a>
+        </div>
+        <div class="badges">
+          <span>BTC · ETH · SOL</span>
+          <span>Accuracy Tracker</span>
+          <span>Risk-First</span>
+        </div>
+      </div>
+      <div class="right card">
+        <div class="card-head">
+          <div class="dots"><span class="dot g"></span><span class="dot y"></span><span class="dot r"></span></div>
+          <div class="card-title">Live Chart</div>
+        </div>
+        <div class="chart" id="tv-chart"></div>
+        <div class="chips">
+          <button class="chip active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
+          <button class="chip" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
+          <button class="chip" data-symbol="BINANCE:SOLUSDT">SOL/USDT</button>
+          <button class="chip" data-symbol="BINANCE:BNBUSDT">BNB/USDT</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signals -->
+  <section id="signals" class="section">
+    <div class="wrap">
+      <h2>Latest Signals</h2>
+      <p class="muted">For education only — not financial advice.</p>
+      <div class="cards" id="signals-container">
+        <article class="signal">
+          <div class="sig-top"><span class="tag">BTC/USDT</span><span class="side long">LONG</span><time>Updated</time></div>
+          <div class="sig-body">
+            <div><label>Entry</label><strong id="btc-entry">Zone 1</strong></div>
+            <div><label>Stop</label><strong id="btc-stop">Defined</strong></div>
+            <div><label>Targets</label><strong id="btc-targets">T1 / T2</strong></div>
+          </div>
+          <p class="note">Replace with your live call.</p>
+        </article>
+        <article class="signal">
+          <div class="sig-top"><span class="tag">ETH/USDT</span><span class="side short">SHORT</span><time>Updated</time></div>
+          <div class="sig-body">
+            <div><label>Entry</label><strong id="eth-entry">Zone</strong></div>
+            <div><label>Stop</label><strong id="eth-stop">Defined</strong></div>
+            <div><label>Targets</label><strong id="eth-targets">T1 / T2</strong></div>
+          </div>
+          <p class="note">Replace with your live call.</p>
+        </article>
+      </div>
+      <div class="signals-foot"><span class="muted">* Past performance is not indicative of future results.</span><a class="btn" href="#vip">Get VIP</a></div>
+    </div>
+  </section>
+
+  <!-- VIP -->
+  <section id="vip" class="section">
+    <div class="wrap">
+      <h2>VIP Membership</h2>
+      <div class="pricing">
+        <div class="plan">
+          <h3>Free Community</h3>
+          <ul><li>BTC/ETH updates</li><li>2–3 sample signals/week</li><li>Education</li></ul>
+          <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Free</a>
+        </div>
+        <div class="plan pro">
+          <div class="pill">Popular</div>
+          <h3>VIP Signals</h3>
+          <p class="price">₹999 <span class="per">/month</span></p>
+          <ul><li>2–5 premium signals/day</li><li>Priority support</li><li>Weekly report</li></ul>
+          <a class="btn" href="#contact">Join VIP</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section">
+    <div class="wrap contact-grid">
+      <div class="contact-card">
+        <h2>Contact</h2>
+        <p class="muted">Questions or VIP signups — send a message and we'll reply.</p>
+        <form action="https://formsubmit.co/newmoneytrader113@gmail.com" method="POST" class="contact-form" onsubmit="alert('Message sent!');">
+          <input type="hidden" name="_subject" value="New message from GrowwChainTrade site">
+          <input type="text" name="name" placeholder="Your name" required>
+          <input type="email" name="email" placeholder="Email" required>
+          <textarea name="message" rows="5" placeholder="Message" required></textarea>
+          <button type="submit" class="btn">Send Message</button>
+        </form>
+      </div>
+      <div class="contact-info">
+        <h3>Quick Links</h3>
+        <ul>
+          <li>Telegram (Free): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join</a></li>
+          <li>Telegram (VIP): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join VIP</a></li>
+          <li>Email: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script>
+    // === Scroll fade-in ===
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('show'); } });
+    }, {threshold:0.2});
+    sections.forEach(sec => observer.observe(sec));
+
+    // === TradingView Chart ===
+    let tvWidget = null;
+    function createChart(symbol = "BINANCE:BTCUSDT") {
+      if(tvWidget) tvWidget.remove();
+      tvWidget = new TradingView.widget({
+        container_id: "tv-chart",
+        width: "100%",
+        height: 400,
+        symbol: symbol,
+        interval: "60",
+        timezone: "Asia/Kolkata",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        toolbar_bg: "#1a1a1a",
+        enable_publishing: false,
+        hide_top_toolbar: false,
+        allow_symbol_change: true
+      });
+    }
+    createChart();
+    document.querySelectorAll(".chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        createChart(btn.getAttribute("data-symbol"));
+      });
+    });
+
+    // === TradingView Ticker ===
+    new TradingView.widget({
+      container_id: "tv-ticker",
+      width: "100%",
+      height: 50,
+      symbols:[
+        {"proName":"BINANCE:BTCUSDT","title":"BTC/USDT"},
+        {"proName":"BINANCE:ETHUSDT","title":"ETH/USDT"},
+        {"proName":"BINANCE:SOLUSDT","title":"SOL/USDT"},
+        {"proName":"BINANCE:BNBUSDT","title":"BNB/USDT"}
+      ],
+      locale:"en",
+      colorTheme:"dark",
+      isTransparent:true,
+      showSymbolLogo:true
+    });
+
+    // === Live Google Sheet Updates ===
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQI4YMvF888p_5bzqS-eE0v_-svt1jv5XXqUw5RCLDTVaVOG3dYzlHK3J0vCuACwbdtZHUYfJhab8aF/pub?output=csv";
+
+    async function updateSignals() {
+      try {
+        const res = await fetch(sheetURL + "&t=" + Date.now());
+        const csv = await res.text();
+        const rows = csv.split("\n").map(r => r.split(","));
+        // Assuming CSV structure: Pair, Entry, Stop, Targets
+        rows.forEach(r => {
+          const pair = r[0]?.trim().toUpperCase();
+          if(pair === "BTC/USDT") {
+            document.getElementById("btc-entry").textContent = r[1];
+            document.getElementById("btc-stop").textContent = r[2];
+            document.getElementById("btc-targets").textContent = r[3];
+          }
+          if(pair === "ETH/USDT") {
+            document.getElementById("eth-entry").textContent = r[1];
+            document.getElementById("eth-stop").textContent = r[2];
+            document.getElementById("eth-targets").textContent = r[3];
+          }
+        });
+      } catch(err) {
+        console.error("Error updating signals:", err);
+      }
+    }
+    updateSignals();
+    setInterval(updateSignals, 30000);
+  </script>
+</body>
+</html>
