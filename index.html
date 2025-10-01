@@ -1,237 +1,269 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Lightweight Crypto Chart (Binance live)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    html,body { height:100%; margin:0; font-family:Inter, system-ui, Arial; background:#0b1220; color:#e6eef8; }
-    .wrap { display:flex; flex-direction:column; height:100vh; }
-    .topbar { display:flex; gap:8px; align-items:center; padding:10px; background:#071023; }
-    .controls input, .controls select, .controls button { padding:6px 8px; border-radius:6px; border:none; }
-    #chart { flex:1; display:flex; }
-    #chartContainer { flex:1; background:#081426; }
-    #info { width:320px; background:#071226; padding:12px; box-shadow: -4px 0 12px rgba(0,0,0,.4); }
-    .stat { margin-bottom:8px; }
-    .small { font-size:12px; color:#9fb0c8 }
-    a { color:#7fd3ff }
-    footer { padding:8px 12px; font-size:12px; color:#9fb0c8; background:#071226 }
-  </style>
-  <!-- Lightweight Charts (CDN) -->
-  <script src="https://unpkg.com/lightweight-charts@4.0.0/dist/lightweight-charts.standalone.production.js"></script>
-</head>
-<body>
-  <div class="wrap">
-    <div class="topbar">
-      <div style="font-weight:700;">LiteChart — live crypto (Binance)</div>
-      <div class="controls" style="margin-left:12px;">
-        <label class="small">Symbol</label>
-        <input id="symbol" value="BTCUSDT" style="width:110px" />
-        <label class="small">Interval</label>
-        <select id="interval">
-          <option value="1m">1m</option>
-          <option value="5m">5m</option>
-          <option value="15m">15m</option>
-          <option value="1h">1h</option>
-          <option value="4h">4h</option>
-          <option value="1d">1d</option>
-        </select>
-        <button id="go">Load</button>
-        <button id="pause">Pause WS</button>
-      </div>
-      <div style="margin-left:auto; font-size:13px;" class="small">Free • No account</div>
-    </div>
+/*
+Growwchaintrade - TradingView-style single-file React app (App.jsx)
 
-    <div id="chart" >
-      <div id="chartContainer"></div>
-      <div id="info">
-        <div style="font-weight:700; margin-bottom:8px" id="title">BTCUSDT • 1m</div>
-        <div class="stat"><span class="small">Last price</span><div id="lastPrice" style="font-size:18px; margin-top:6px">—</div></div>
-        <div class="stat"><span class="small">Candle</span><div id="candle" style="margin-top:6px">—</div></div>
-        <div class="stat"><span class="small">SMA(50)</span><div id="sma50" style="margin-top:6px">—</div></div>
-        <div style="margin-top:12px;" class="small">Notes:</div>
-        <ul class="small">
-          <li>Data from Binance public APIs (free)</li>
-          <li>Deploy: GitHub Pages / Vercel / Netlify</li>
-          <li>Change symbol/interval then click <b>Load</b></li>
-        </ul>
-        <hr style="border:none; border-top:1px solid rgba(255,255,255,0.03); margin:12px 0">
-        <div class="small">Want more (indicators, drawings, alerts)? I can extend this to React or add more tools.</div>
-      </div>
-    </div>
+Setup instructions (recommended):
+1) Create a new Vite React project:
+   npm create vite@latest growwchaintrade -- --template react
+   cd growwchaintrade
+2) Install dependencies:
+   npm install lightweight-charts react-icons
+3) Install TailwindCSS (optional but recommended):
+   Follow Tailwind install for Vite: https://tailwindcss.com/docs/guides/vite
 
-    <footer>Lightweight Charts + Binance • Example starter</footer>
-  </div>
+Usage:
+- Replace src/App.jsx with this file contents.
+- Ensure Tailwind is configured (or replace classes with your CSS).
+- Run: npm install && npm run dev
 
-<script>
-(async function(){
-  // DOM
-  const chartContainer = document.getElementById('chartContainer');
-  const symbolInput = document.getElementById('symbol');
-  const intervalSelect = document.getElementById('interval');
-  const goBtn = document.getElementById('go');
-  const pauseBtn = document.getElementById('pause');
-  const titleEl = document.getElementById('title');
-  const lastPriceEl = document.getElementById('lastPrice');
-  const candleEl = document.getElementById('candle');
-  const sma50El = document.getElementById('sma50');
+This single-file app includes:
+- Header with logo name "Growwchaintrade"
+- Dark/light theme toggle
+- Left sidebar (navigation)
+- Main area with a TradingView-style candlestick chart using lightweight-charts
+- Right sidebar watchlist with mocked real-time updates
+- Responsive layout
 
-  // default
-  let ws = null;
-  let paused = false;
+Feel free to ask for additions: indicators, drawing tools, live data integration (WebSocket/API), login, or exportable chart images.
+*/
 
-  // Create chart
-  chartContainer.innerHTML = '';
-  const chart = LightweightCharts.createChart(chartContainer, {
-    width: chartContainer.clientWidth,
-    height: chartContainer.clientHeight,
-    layout: { backgroundColor: '#081426', textColor: '#e6eef8' },
-    grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
-    timeScale: { timeVisible: true, secondsVisible: false }
-  });
+import React, { useEffect, useRef, useState } from "react";
+import { createChart } from "lightweight-charts";
+import { FiMoon, FiSun, FiSearch, FiBell } from "react-icons/fi";
+import { AiOutlineStar } from "react-icons/ai";
 
-  // series
-  const candleSeries = chart.addCandlestickSeries({ upColor: '#26a69a', downColor:'#ef5350', borderVisible:false, wickColor: '#737b86' });
-  const volumeSeries = chart.addHistogramSeries({
-    color: '#26a69a', priceFormat: { type: 'volume' }, scaleMargins: { top: 0.8, bottom: 0 }
-  });
-  const smaSeries = chart.addLineSeries({ color: '#f4d35e', lineWidth: 2 });
+export default function App() {
+  const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
+  const candleSeriesRef = useRef(null);
+  const [theme, setTheme] = useState("dark");
+  const [timeframe, setTimeframe] = useState("1D");
+  const [watchlist, setWatchlist] = useState([
+    { symbol: "BTC/USDT", price: 27950, change: -0.8, id: 1 },
+    { symbol: "ETH/USDT", price: 1765, change: 1.4, id: 2 },
+    { symbol: "AAPL", price: 172.3, change: -0.3, id: 3 },
+  ]);
 
-  // resize handling
-  window.addEventListener('resize', () => {
-    chart.applyOptions({ width: chartContainer.clientWidth, height: chartContainer.clientHeight });
-  });
+  // Mock candlestick data (you should replace this with real API data)
+  const initialCandles = [
+    { time: "2025-09-20", open: 27500, high: 28100, low: 27400, close: 27900 },
+    { time: "2025-09-21", open: 27900, high: 28300, low: 27600, close: 28200 },
+    { time: "2025-09-22", open: 28200, high: 28500, low: 28000, close: 28150 },
+    { time: "2025-09-23", open: 28150, high: 28400, low: 27800, close: 27950 },
+    { time: "2025-09-24", open: 27950, high: 28250, low: 27600, close: 27800 },
+    { time: "2025-09-25", open: 27800, high: 28050, low: 27450, close: 27950 },
+    { time: "2025-09-26", open: 27950, high: 28350, low: 27900, close: 28200 },
+  ];
 
-  // helpers
-  function apiKlines(symbol, interval, limit=500){
-    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
-    return fetch(url).then(r => r.json());
-  }
-
-  function toLightK(line){
-    // kline array: [ openTime, open, high, low, close, volume, closeTime, ... ]
-    return {
-      time: Math.floor(line[0] / 1000),
-      open: parseFloat(line[1]),
-      high: parseFloat(line[2]),
-      low: parseFloat(line[3]),
-      close: parseFloat(line[4]),
-      volume: parseFloat(line[5])
-    };
-  }
-
-  function computeSMA(data, length=50){
-    const sma = [];
-    let sum = 0;
-    for(let i=0;i<data.length;i++){
-      const v = data[i].close;
-      sum += v;
-      if(i >= length) sum -= data[i-length].close;
-      if(i >= length-1) sma.push({ time: data[i].time, value: sum/length });
-    }
-    // align: sma length is data.length - (length-1). We'll return sparse map for series.setData usage.
-    return sma;
-  }
-
-  function applyDataToChart(candles){
-    const lw = candles.map(toLightK);
-    candleSeries.setData(lw);
-    volumeSeries.setData(lw.map(c=>({time:c.time, value:c.volume, color: c.close >= c.open ? '#26a69a' : '#ef5350'})));
-    const sma = computeSMA(lw, 50);
-    smaSeries.setData(sma);
-    if(lw.length) {
-      const last = lw[lw.length-1];
-      titleEl.textContent = `${symbolInput.value.toUpperCase()} • ${intervalSelect.value}`;
-      lastPriceEl.textContent = last.close.toFixed(2);
-      candleEl.textContent = `O:${last.open} H:${last.high} L:${last.low} C:${last.close}`;
-      const lastSma = sma.length ? sma[sma.length-1].value : null;
-      sma50El.textContent = lastSma ? lastSma.toFixed(2) : '—';
-    }
-  }
-
-  // WebSocket management
-  function startWS(symbol, interval){
-    stopWS();
-    const lower = symbol.toLowerCase();
-    const stream = `${lower}@kline_${interval}`;
-    const url = `wss://stream.binance.com:9443/ws/${stream}`;
-    ws = new WebSocket(url);
-    ws.onopen = () => { console.log('WS open', url); paused = false; pauseBtn.textContent = 'Pause WS'; };
-    ws.onmessage = (evt) => {
-      if(paused) return;
-      const msg = JSON.parse(evt.data);
-      // message.k contains kline
-      const k = msg.k;
-      const light = {
-        time: Math.floor(k.t/1000),
-        open: parseFloat(k.o),
-        high: parseFloat(k.h),
-        low: parseFloat(k.l),
-        close: parseFloat(k.c),
-        volume: parseFloat(k.v)
-      };
-      // if k.x true => candle closed
-      if(k.x){
-        // append candle
-        candleSeries.update(light);
-        // append volume
-        volumeSeries.update({ time: light.time, value: light.volume, color: light.close >= light.open ? '#26a69a' : '#ef5350' });
-        // update sma by recalculating tail (cheap for demo)
-        // fetch last 51 candles from chart by storing them locally would be ideal; here we request last 200 again (simple && robust)
-        apiKlines(symbol, interval, 200).then(res => {
-          applyDataToChart(res);
-        }).catch(e=>console.warn(e));
-      } else {
-        // update current (incomplete) candle
-        candleSeries.update(light);
-        volumeSeries.update({ time: light.time, value: light.volume, color: light.close >= light.open ? '#26a69a' : '#ef5350' });
-        lastPriceEl.textContent = light.close.toFixed(2);
-        candleEl.textContent = `O:${light.open} H:${light.high} L:${light.low} C:${light.close}`;
+  useEffect(() => {
+    // Create chart
+    if (chartContainerRef.current) {
+      // Clear if exists
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
       }
-    };
-    ws.onclose = () => { console.log('WS closed'); ws = null; pauseBtn.textContent = 'Start WS'; };
-    ws.onerror = (e) => { console.warn('WS error', e); };
-  }
 
-  function stopWS(){
-    if(ws){ ws.close(); ws = null; }
-  }
+      const isDark = theme === "dark";
+      const chart = createChart(chartContainerRef.current, {
+        width: chartContainerRef.current.clientWidth,
+        height: 520,
+        layout: {
+          background: { color: isDark ? "#0f1724" : "#ffffff" },
+          textColor: isDark ? "#e6eef6" : "#0b1220",
+        },
+        grid: {
+          vertLines: { color: isDark ? "#1b2430" : "#f0f0f0" },
+          horzLines: { color: isDark ? "#1b2430" : "#f0f0f0" },
+        },
+        crosshair: { mode: 1 },
+        rightPriceScale: { borderColor: isDark ? "#2b3946" : "#e6eef6" },
+        timeScale: { borderColor: isDark ? "#2b3946" : "#e6eef6" },
+      });
 
-  // load and init
-  async function load(symbol, interval){
-    try {
-      titleEl.textContent = `${symbol.toUpperCase()} • ${interval}`;
-      const raw = await apiKlines(symbol, interval, 500);
-      applyDataToChart(raw);
-      startWS(symbol, interval);
-    } catch(err){
-      alert('Failed to load data (CORS/network). Check console for details.');
-      console.error(err);
+      chartRef.current = chart;
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: "#26a69a",
+        downColor: "#ef5350",
+        wickUpColor: "#26a69a",
+        wickDownColor: "#ef5350",
+        borderVisible: false,
+      });
+
+      candleSeries.setData(initialCandles);
+      candleSeriesRef.current = candleSeries;
+
+      // Handle resize
+      const handleResize = () => {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      };
+      window.addEventListener("resize", handleResize);
+
+      return () => {
+        window.removeEventListener("resize", handleResize);
+        chart.remove();
+      };
     }
-  }
+  }, [theme, timeframe]);
 
-  // UI events
-  goBtn.onclick = () => {
-    const s = symbolInput.value.trim();
-    const i = intervalSelect.value;
-    if(!s) return alert('Enter symbol like BTCUSDT');
-    load(s, i);
+  // Mock real-time update for watchlist prices
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setWatchlist((prev) =>
+        prev.map((it) => {
+          const changePct = (Math.random() - 0.5) * 0.6; // -0.3% to +0.3%
+          const newPrice = +(it.price * (1 + changePct / 100)).toFixed(2);
+          return { ...it, price: newPrice, change: +(it.change + changePct).toFixed(2) };
+        })
+      );
+    }, 2500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+
+  const addToWatchlist = (symbol) => {
+    setWatchlist((w) => [...w, { symbol, price: 0, change: 0, id: Date.now() }]);
   };
 
-  pauseBtn.onclick = () => {
-    if(!ws){ // start if not running
-      startWS(symbolInput.value.trim(), intervalSelect.value);
-      paused = false;
-      pauseBtn.textContent = 'Pause WS';
-      return;
-    }
-    paused = !paused;
-    pauseBtn.textContent = paused ? 'Resume WS' : 'Pause WS';
-  };
+  return (
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#071322] text-[#e6eef6]" : "bg-white text-[#0b1220]"}`}>
+      {/* Header */}
+      <header className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-md p-2 text-white font-bold">G</div>
+            <div className="font-semibold text-lg">Growwchaintrade</div>
+          </div>
+          <div className="hidden md:flex items-center bg-transparent rounded px-2 py-1 border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+            <FiSearch />
+            <input className={`ml-2 bg-transparent outline-none ${theme === "dark" ? "placeholder-[#9fb0c4]" : "placeholder-[#6b7280]"}`} placeholder="Search symbol, e.g. BTC/USDT" />
+          </div>
+        </div>
 
-  // initial load
-  load(symbolInput.value, intervalSelect.value);
-})();
-</script>
-</body>
-</html>
+        <div className="flex items-center gap-4">
+          <button className="hidden md:flex items-center gap-2 px-3 py-1 rounded border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+            <AiOutlineStar /> Watchlist
+          </button>
+          <button onClick={toggleTheme} className="p-2 rounded hover:opacity-90 border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+            {theme === "dark" ? <FiSun /> : <FiMoon />}
+          </button>
+          <button className="p-2 rounded border" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+            <FiBell />
+          </button>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Left Sidebar */}
+        <aside className="w-20 md:w-56 border-r px-2 py-4 hidden md:block" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
+          <nav className="flex flex-col gap-3">
+            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Dashboard</button>
+            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Markets</button>
+            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Watchlist</button>
+            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">Portfolio</button>
+            <button className="text-left px-3 py-2 rounded hover:bg-opacity-5">News</button>
+          </nav>
+
+          <div className="mt-6 px-3">
+            <div className="text-sm mb-2">Timeframe</div>
+            <div className="flex gap-2">
+              {["1m", "5m", "1h", "4h", "1D"].map((tf) => (
+                <button key={tf} onClick={() => setTimeframe(tf)} className={`px-2 py-1 rounded ${timeframe === tf ? "bg-[#0ea5a0] text-white" : "border"}`}>
+                  {tf}
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 p-4">
+          <div className="rounded-lg overflow-hidden shadow-sm">
+            <div ref={chartContainerRef} className="w-full bg-transparent"></div>
+
+            {/* Toolbar below the chart */}
+            <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+              <div className="flex items-center gap-3">
+                <div className="font-semibold">BTC/USDT</div>
+                <div className="text-sm text-gray-400">Last: 27,950 • -0.8%</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1 border rounded">Indicators</button>
+                <button className="px-3 py-1 border rounded">Templates</button>
+                <button className="px-3 py-1 bg-[#0ea5a0] text-white rounded">Buy</button>
+                <button className="px-3 py-1 bg-[#ef5350] text-white rounded">Sell</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Below main area: small market cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="p-3 rounded border" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
+              <div className="text-sm">Top Gainers</div>
+              <ul className="mt-2">
+                <li>ETH • +3.4%</li>
+                <li>BNB • +2.1%</li>
+                <li>ADA • +1.9%</li>
+              </ul>
+            </div>
+
+            <div className="p-3 rounded border" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
+              <div className="text-sm">Top Losers</div>
+              <ul className="mt-2">
+                <li>XRP • -1.1%</li>
+                <li>DOGE • -0.8%</li>
+              </ul>
+            </div>
+
+            <div className="p-3 rounded border" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
+              <div className="text-sm">Market News</div>
+              <div className="mt-2 text-sm">No news loaded. Connect a news API to show headlines.</div>
+            </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar */}
+        <aside className="w-80 border-l px-3 py-4 hidden lg:block" style={{ borderColor: theme === "dark" ? "#162533" : "#eef2f7" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="font-semibold">Watchlist</div>
+            <button className="text-sm">Add</button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {watchlist.map((w) => (
+              <div key={w.id} className="flex items-center justify-between p-2 rounded border" style={{ borderColor: theme === "dark" ? "#0f2433" : "#f1f5f9" }}>
+                <div>
+                  <div className="font-medium">{w.symbol}</div>
+                  <div className="text-xs">{w.price}</div>
+                </div>
+                <div className={`text-sm ${w.change >= 0 ? "text-green-400" : "text-red-400"}`}>{w.change}%</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <div className="text-sm mb-2">Quick Add</div>
+            <div className="flex gap-2">
+              <button onClick={() => addToWatchlist("SOL/USDT")} className="px-2 py-1 border rounded">SOL</button>
+              <button onClick={() => addToWatchlist("ADA/USDT")} className="px-2 py-1 border rounded">ADA</button>
+              <button onClick={() => addToWatchlist("XRP/USDT")} className="px-2 py-1 border rounded">XRP</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* Footer */}
+      <footer className="px-4 py-3 border-t text-sm" style={{ borderColor: theme === "dark" ? "#203244" : "#eef2f7" }}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div>© {new Date().getFullYear()} Growwchaintrade</div>
+          <div className="hidden sm:flex gap-4">
+            <a>Contact</a>
+            <a>Privacy</a>
+            <a>Terms</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
