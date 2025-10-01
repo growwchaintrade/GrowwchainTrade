@@ -151,7 +151,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// Live BTC/USD RSI Entries
+// BTC/USD RSI Live
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
 const RSI_PERIOD = 14;
@@ -193,37 +193,38 @@ function updateTradeEntries(rsi, price){
     </div>`;
 }
 
-// Initial fetch & refresh every minute
 fetchCandles();
 setInterval(fetchCandles, 60000);
 
-// Live News Ticker - Crypto + Indian + Global
-async function fetchNews(){
-  try{
-    const cryptoRes = await fetch('https://newsapi.org/v2/everything?q=crypto&language=en&apiKey=4df849b405a84d6e9ad918dcb2fabb53');
-    const cryptoData = await cryptoRes.json();
-
-    const indiaRes = await fetch('https://newsapi.org/v2/top-headlines?country=in&apiKey=4df849b405a84d6e9ad918dcb2fabb53');
-    const indiaData = await indiaRes.json();
-
-    const globalRes = await fetch('https://newsapi.org/v2/top-headlines?language=en&apiKey=4df849b405a84d6e9ad918dcb2fabb53');
-    const globalData = await globalRes.json();
-
-    const headlines = [
-      ...cryptoData.articles.map(a=>a.title),
-      ...indiaData.articles.map(a=>a.title),
-      ...globalData.articles.map(a=>a.title)
-    ].slice(0,30).join(' · '); // top 30 headlines
-
-    document.getElementById('news-ticker').innerHTML = `<span>${headlines}</span>`;
-  } catch(err){
-    console.error(err);
-    document.getElementById('news-ticker').innerHTML = `<span>Unable to fetch news</span>`;
+// RSS News Ticker
+async function fetchRSS(url) {
+  try {
+    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    return data.items.map(item => item.title);
+  } catch (err) {
+    console.error(`Error fetching ${url}`, err);
+    return [];
   }
 }
 
-fetchNews();
-setInterval(fetchNews, 600000); // refresh every 10 minutes
+async function updateNewsTicker() {
+  const cryptoFeed = 'https://cryptonews.com/news/feed';
+  const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
+  const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
+
+  const [cryptoNews, indiaNews, globalNews] = await Promise.all([
+    fetchRSS(cryptoFeed),
+    fetchRSS(indiaFeed),
+    fetchRSS(globalFeed)
+  ]);
+
+  const headlines = [...cryptoNews, ...indiaNews, ...globalNews].slice(0, 30).join(' · ');
+  document.getElementById('news-ticker').innerHTML = `<span>${headlines}</span>`;
+}
+
+updateNewsTicker();
+setInterval(updateNewsTicker, 600000);
 </script>
 
 </body>
