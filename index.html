@@ -331,10 +331,11 @@ function updateSignalsTable(rsi, price){
     const pl = exit==='-'? '-' : (exit-price).toFixed(2);
     const row = document.createElement('tr');
     row.className = action;
-    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${pl>=0?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
+    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${(pl!=='-' && parseFloat(pl)>=0)?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
     signalsBody.prepend(row);
 }
 
+// Modal for each signal
 const modal = document.getElementById("signalModal");
 const modalText = document.getElementById("modal-content-text");
 const spanClose = document.getElementsByClassName("close")[0];
