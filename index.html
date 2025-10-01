@@ -62,9 +62,8 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 #carousel{display:flex;overflow:hidden;border-radius:10px;margin-bottom:10px;}
 .carousel-item{flex:0 0 100%;padding:10px;background:#161b22;margin-right:10px;border-radius:10px;transition:transform 0.5s;}
 #news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;margin-bottom:30px;}
-#news-ticker span{display:inline-block;animation:scroll 100s linear infinite;}
+#news-ticker span{display:inline-block;animation:scroll 120s linear infinite;}
 @keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
-/* Modal */
 .modal {display:none;position:fixed;z-index:2000;padding-top:100px;left:0;top:0;width:100%;height:100%;overflow:auto;background:rgba(0,0,0,0.8);}
 .modal-content {background:#161b22;margin:auto;padding:20px;border-radius:10px;width:90%;max-width:500px;color:#fff;}
 .close {color:#ff007f;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
@@ -130,7 +129,6 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <tr><th>Date</th><th>Coin</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Time</th><th>RSI</th></tr>
 </thead>
 <tbody id="signals-body">
-<!-- Live signals will appear here -->
 </tbody>
 </table>
 </section>
@@ -181,7 +179,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// ------------------- News Section -------------------
+// ------------------- News + BTC/USD RSI -------------------
 const newsFeatured = document.getElementById('news-featured');
 const newsTicker = document.getElementById('news-ticker');
 const carousel = document.getElementById('carousel');
@@ -190,44 +188,35 @@ const tabs = document.querySelectorAll('#news-tabs button');
 let newsData = { crypto: [], india: [], global: [] };
 let currentTab = 'crypto';
 let carouselIndex = 0;
-
-// Keywords to highlight
 const cryptoKeywords = ['bitcoin','btc','ethereum','eth','bnb','cardano','ada','solana','sol'];
 const indiaKeywords = ['india','rbi','government','govt','nirmala','finance','budget'];
 
-// RSS fetch helper
-async function fetchRSS(url) {
+async function rssToJson(url) {
     try {
-        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-        const res = await fetch(proxy);
+        const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+        const res = await fetch(api);
         const data = await res.json();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(data.contents, "text/xml");
-        const items = xml.querySelectorAll("item");
-        let headlines = [];
-        items.forEach(item=>{
-            const title = item.querySelector("title")?.textContent || '';
-            const link = item.querySelector("link")?.textContent || '';
-            const desc = item.querySelector("description")?.textContent || '';
-            headlines.push({title, link, desc});
-        });
-        return headlines;
+        if(!data.items) return [];
+        return data.items.map(item => ({
+            title: item.title,
+            link: item.link,
+            desc: item.description
+        }));
     } catch(err){
         console.error('RSS fetch error:', err);
         return [];
     }
 }
 
-// Fetch news feeds
 async function updateNewsData() {
-    const cryptoFeed = 'https://cryptonews.com/news/feed';
+    const cryptoFeed = 'https://www.coindesk.com/arc/outboundfeeds/rss/';
     const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
     const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
 
     const [crypto, india, globalNews] = await Promise.all([
-        fetchRSS(cryptoFeed),
-        fetchRSS(indiaFeed),
-        fetchRSS(globalFeed)
+        rssToJson(cryptoFeed),
+        rssToJson(indiaFeed),
+        rssToJson(globalFeed)
     ]);
 
     newsData.crypto = crypto;
@@ -237,7 +226,6 @@ async function updateNewsData() {
     renderNews(currentTab);
 }
 
-// Render news for selected tab
 function renderNews(tab){
     currentTab = tab;
     const news = newsData[tab] || [];
@@ -247,11 +235,8 @@ function renderNews(tab){
         carousel.innerHTML = '';
         return;
     }
-
-    // Featured article
     newsFeatured.innerHTML = `<a href="${news[0].link}" target="_blank">${news[0].title}</a>`;
 
-    // Carousel (top 3 articles)
     const top3 = news.slice(0,3);
     carousel.innerHTML = top3.map((item, i)=>{
         return `<div class="carousel-item" style="transform:translateX(-${carouselIndex*100}%);">
@@ -260,20 +245,16 @@ function renderNews(tab){
         </div>`;
     }).join('');
 
-    // Ticker (other articles)
     const tickerArticles = news.slice(3,15).map((item,i)=>{
         let color = '#ccc';
         const titleLower = item.title.toLowerCase();
-        // Highlight crypto
         if(cryptoKeywords.some(k=>titleLower.includes(k))) color='#00ff7f';
-        // Highlight Indian govt
         if(indiaKeywords.some(k=>titleLower.includes(k))) color='#ffae00';
         return `<a href="${item.link}" target="_blank" style="color:${color};margin-right:50px;">${item.title}</a>`;
     }).join(' · ');
     newsTicker.innerHTML = `<span>${tickerArticles}</span>`;
 }
 
-// Tab click events
 tabs.forEach(btn=>{
     btn.addEventListener('click', ()=>{
         tabs.forEach(b=>b.classList.remove('active'));
@@ -282,7 +263,6 @@ tabs.forEach(btn=>{
     });
 });
 
-// Carousel auto-slide every 10s
 setInterval(()=>{
     if(!newsData[currentTab] || newsData[currentTab].length===0) return;
     const length = Math.min(3, newsData[currentTab].length);
@@ -293,7 +273,6 @@ setInterval(()=>{
     });
 },10000);
 
-// Initial fetch & refresh every 10 mins
 updateNewsData();
 setInterval(updateNewsData,600000);
 
@@ -356,7 +335,6 @@ function updateSignalsTable(rsi, price){
     signalsBody.prepend(row);
 }
 
-// Click row to open modal
 const modal = document.getElementById("signalModal");
 const modalText = document.getElementById("modal-content-text");
 const spanClose = document.getElementsByClassName("close")[0];
@@ -370,9 +348,9 @@ signalsBody.addEventListener('click', e=>{
 spanClose.onclick = ()=>{modal.style.display="none";}
 window.onclick = e=>{if(e.target==modal) modal.style.display="none";}
 
-// Initial fetch & refresh every minute
 fetchCandles();
 setInterval(fetchCandles,60000);
 </script>
+
 </body>
 </html>
