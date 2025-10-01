@@ -1,202 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GrowwChainTrade - Live RSI Signals</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
-body{background:#0d1117;color:#fff;line-height:1.6;}
-a{color:inherit;text-decoration:none;}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 50px;background:#161b22;position:sticky;top:0;z-index:1000;}
-.logo{font-size:1.8rem;font-weight:700;color:#00ff7f;}
-nav ul{display:flex;gap:25px;}
-nav ul li{list-style:none;}
-.cta-buttons a{margin-left:15px;padding:8px 16px;border-radius:5px;font-weight:700;}
-.join-free{background:#00ff7f;color:#000;}
-.join-vip{background:#ff007f;color:#fff;}
-.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 20px;background:linear-gradient(135deg,#0d1117,#161b22);}
-.hero h1{font-size:2.8rem;margin-bottom:20px;color:#00ff7f;}
-.hero p{font-size:1.2rem;margin-bottom:30px;color:#ccc;}
-.hero .buttons a{margin:0 10px;padding:12px 24px;border-radius:6px;font-weight:700;}
-.hero .buttons .join-free{background:#00ff7f;color:#000;}
-.hero .buttons .join-vip{background:#ff007f;color:#fff;}
-section{padding:60px 20px;}
-section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
-.charts-grid{display:grid;grid-template-columns:1fr;gap:20px;}
-.tradingview-iframe{width:100%;height:500px;border:none;border-radius:10px;}
-#btc-price{text-align:center;font-size:1.5rem;margin-bottom:15px;}
-#trade-entries{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;}
-.trade-card{background:#161b22;padding:15px;border-radius:8px;text-align:center;transition:all 0.3s;}
-.trade-card.buy{box-shadow:0 0 15px #00ff7f;}
-.trade-card.sell{box-shadow:0 0 15px #ff007f;}
-.trade-card.hold{box-shadow:0 0 10px #666;}
-.signals-table{width:100%;border-collapse:collapse;margin-top:20px;}
-.signals-table th,.signals-table td{padding:12px;text-align:center;border-bottom:1px solid #444;}
-.signals-table th{background:#161b22;color:#00ff7f;}
-.signals-table tr.win{background:#003300;color:#00ff7f;}
-.signals-table tr.loss{background:#330000;color:#ff4d4d;}
-.signals-table tr.expired{background:#111;color:#666;}
-.membership{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
-.card{background:#161b22;padding:30px;border-radius:10px;flex:1 1 250px;min-width:250px;text-align:center;}
-.card h3{font-size:1.5rem;margin-bottom:15px;color:#00ff7f;}
-.card ul{list-style:none;margin-bottom:20px;}
-.card ul li{margin:10px 0;}
-.card a{padding:10px 20px;border-radius:5px;font-weight:700;display:inline-block;}
-.card .btn-free{background:#00ff7f;color:#000;}
-.card .btn-vip{background:#ff007f;color:#fff;}
-.telegram-section{text-align:center;}
-.telegram-section a{display:inline-block;margin:10px;padding:12px 24px;border-radius:6px;font-weight:700;}
-.telegram-free{background:#00ff7f;color:#000;}
-.telegram-vip{background:#ff007f;color:#fff;}
-#news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;}
-#news-ticker span{display:inline-block;margin-right:50px;animation:scroll 40s linear infinite;}
-@keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
-footer{background:#161b22;text-align:center;padding:20px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1e1e1e;
+            padding: 10px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .crypto-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+        }
+        .crypto-card {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 18%;
+            text-align: center;
+        }
+        .crypto-card iframe {
+            width: 100%;
+            height: 300px;
+            border: none;
+        }
+        .news-ticker {
+            background-color: #333;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .news-ticker p {
+            display: inline;
+            margin: 0;
+            padding: 0 20px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
 
 <header>
-<div class="logo">GrowwChainTrade</div>
-<nav>
-<ul>
-<li><a href="#hero">Home</a></li>
-<li><a href="#charts">Charts</a></li>
-<li><a href="#signals">Signals</a></li>
-<li><a href="#membership">VIP</a></li>
-<li><a href="#telegram">Telegram</a></li>
-<li><a href="#news">News</a></li>
-</ul>
-</nav>
-<div class="cta-buttons">
-<a href="#telegram" class="join-free">Join Free</a>
-<a href="#membership" class="join-vip">Join VIP</a>
-</div>
+    Live Crypto Dashboard
 </header>
 
-<section class="hero" id="hero">
-<h1>Grow Together in Crypto Trading</h1>
-<p>Live RSI-based BTC/USD entries, signals, charts, and news.</p>
-<div class="buttons">
-<a href="#telegram" class="join-free">Join Free</a>
-<a href="#membership" class="join-vip">Join VIP</a>
+<div class="crypto-container">
+    <div class="crypto-card">
+        <h3>BTC/USDT</h3>
+        <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12345&symbol=BINANCE%3ABTCUSDT&interval=60&hidesidetoolbar=1&hidetoptoolbar=1&theme=dark&style=1&timezone=Asia%2FKolkata"></iframe>
+        <p>RSI: <span id="rsi-btc">Loading...</span></p>
+    </div>
+    <div class="crypto-card">
+        <h3>ETH/USDT</h3>
+        <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12346&symbol=BINANCE%3AETHUSDT&interval=60&hidesidetoolbar=1&hidetoptoolbar=1&theme=dark&style=1&timezone=Asia%2FKolkata"></iframe>
+        <p>RSI: <span id="rsi-eth">Loading...</span></p>
+    </div>
+    <div class="crypto-card">
+        <h3>BNB/USDT</h3>
+        <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12347&symbol=BINANCE%3ABNBUSDT&interval=60&hidesidetoolbar=1&hidetoptoolbar=1&theme=dark&style=1&timezone=Asia%2FKolkata"></iframe>
+        <p>RSI: <span id="rsi-bnb">Loading...</span></p>
+    </div>
+    <div class="crypto-card">
+        <h3>ADA/USDT</h3>
+        <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12348&symbol=BINANCE%3AADAUSDT&interval=60&hidesidetoolbar=1&hidetoptoolbar=1&theme=dark&style=1&timezone=Asia%2FKolkata"></iframe>
+        <p>RSI: <span id="rsi-ada">Loading...</span></p>
+    </div>
+    <div class="crypto-card">
+        <h3>SOL/USDT</h3>
+        <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12349&symbol=BINANCE%3ASOLUSDT&interval=60&hidesidetoolbar=1&hidetoptoolbar=1&theme=dark&style=1&timezone=Asia%2FKolkata"></iframe>
+        <p>RSI: <span id="rsi-sol">Loading...</span></p>
+    </div>
 </div>
-</section>
 
-<div id="news-ticker"><span>Bitcoin rises · Ethereum update · Binance Coin new levels · Cardano ADA news · Solana SOL news · Litecoin update · XRP news · Crypto market overview · Altcoins updates · NFT trends · </span></div>
-
-<section id="charts">
-<h2>Live Crypto Charts</h2>
-<div class="charts-grid">
-<iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=60&theme=dark"></iframe>
+<div class="news-ticker" id="news-ticker">
+    <p>Loading news...</p>
 </div>
-</section>
 
-<section id="live-btc">
-<h2>BTC/USD Live RSI Entries</h2>
-<div id="btc-price">Fetching price...</div>
-<div id="trade-entries"></div>
-</section>
-
-<section id="signals">
-<h2>Latest Signals</h2>
-<table class="signals-table">
-<thead>
-<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Target</th><th>Status</th></tr>
-</thead>
-<tbody>
-<tr class="win"><td>01-10-2025</td><td>BTC/USDT</td><td>52000</td><td>53000</td><td>Win</td></tr>
-<tr class="loss"><td>01-10-2025</td><td>ETH/USDT</td><td>3500</td><td>3400</td><td>Loss</td></tr>
-<tr class="win"><td>30-09-2025</td><td>BNB/USDT</td><td>450</td><td>470</td><td>Win</td></tr>
-</tbody>
-</table>
-</section>
-
-<section id="membership">
-<h2>Membership Plans</h2>
-<div class="membership">
-<div class="card">
-<h3>Free</h3>
-<ul>
-<li>2–3 signals/week</li>
-<li>Access to Free Telegram</li>
-<li>Educational Content</li>
-</ul>
-<a href="#telegram" class="btn-free">Join Free</a>
-</div>
-<div class="card">
-<h3>VIP</h3>
-<ul>
-<li>2–5 signals/day</li>
-<li>Priority Support</li>
-<li>Weekly Reports</li>
-</ul>
-<a href="#telegram" class="btn-vip">Join VIP</a>
-</div>
-</div>
-</section>
-
-<section class="telegram-section" id="telegram">
-<h2>Join Our Telegram Community</h2>
-<a href="https://t.me/yourFreeChannel" class="telegram-free">Join Free Channel</a>
-<a href="https://t.me/yourVIPChannel" class="telegram-vip">Join VIP</a>
-</section>
-
-<footer>
-<p>Contact: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></p>
-<p>Signals are educational and not financial advice.</p>
-<p>&copy; 2025 GrowwChainTrade</p>
-</footer>
-
-<!-- Scripts -->
 <script>
-// RSI-based BTC/USD live entries
-const priceEl = document.getElementById('btc-price');
-const tradeEntries = document.getElementById('trade-entries');
-const RSI_PERIOD = 14;
-let closes = [];
+    // Function to fetch RSI data (mock function)
+    function fetchRSI(symbol) {
+        // Replace with actual API call to fetch RSI
+        return Math.floor(Math.random() * 100);
+    }
 
-async function fetchCandles(){
-  try{
-    const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
-    const data = await res.json();
-    closes = data.map(c=>parseFloat(c[4]));
-    calculateRSI();
-  } catch(err){ console.error(err);}
-}
+    // Update RSI values
+    document.getElementById('rsi-btc').textContent = fetchRSI('BTC');
+    document.getElementById('rsi-eth').textContent = fetchRSI('ETH');
+    document.getElementById('rsi-bnb').textContent = fetchRSI('BNB');
+    document.getElementById('rsi-ada').textContent = fetchRSI('ADA');
+    document.getElementById('rsi-sol').textContent = fetchRSI('SOL');
 
-function calculateRSI(){
-  if(closes.length < RSI_PERIOD) return;
-  let gains=0, losses=0;
-  for(let i=1;i<closes.length;i++){
-    let diff=closes[i]-closes[i-1];
-    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
-  }
-  const avgGain=gains/RSI_PERIOD;
-  const avgLoss=losses/RSI_PERIOD;
-  const rs=avgGain/avgLoss;
-  const rsi=100-(100/(1+rs));
-  updateTradeEntries(rsi, closes[closes.length-1]);
-}
+    // Function to fetch news headlines
+    async function fetchNews() {
+        const response = await fetch('https://newsapi.org/v2/top-headlines?country=in&apiKey=YOUR_API_KEY');
+        const data = await response.json();
+        const headlines = data.articles.map(article => article.title).join(' | ');
+        document.getElementById('news-ticker').innerHTML = `<p>${headlines}</p>`;
+    }
 
-function updateTradeEntries(rsi, price){
-  let action='';
-  if(rsi<30) action='buy';
-  else if(rsi>70) action='sell';
-  else action='hold';
-  priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
-  tradeEntries.innerHTML = `
-    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
-      <p>RSI: ${rsi.toFixed(2)}</p>
-      <p>Signal: ${action.toUpperCase()}</p>
-    </div>`;
-}
-
-// Initial fetch and refresh every minute
-fetchCandles();
-setInterval(fetchCandles, 60000);
+    // Fetch news every 10 minutes
+    fetchNews();
+    setInterval(fetchNews, 600000);
 </script>
+
 </body>
 </html>
