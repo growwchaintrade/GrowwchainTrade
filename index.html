@@ -193,22 +193,35 @@ function updateTradeEntries(rsi, price){
     </div>`;
 }
 
-// Initial fetch and refresh every minute
+// Initial fetch & refresh every minute
 fetchCandles();
 setInterval(fetchCandles, 60000);
 
-// Live News Ticker
+// Live News Ticker - Crypto + Indian + International
 async function fetchNews(){
   try{
-    const res = await fetch('https://newsapi.org/v2/top-headlines?country=in&apiKey=YOUR_API_KEY');
-    const data = await res.json();
-    const headlines = data.articles.map(a=>a.title).join(' · ');
+    const crypto = await fetch('https://newsapi.org/v2/everything?q=crypto&language=en&apiKey=4df849b405a84d6e9ad918dcb2fabb53');
+    const cryptoData = await crypto.json();
+    const india = await fetch('https://newsapi.org/v2/top-headlines?country=in&apiKey=4df849b405a84d6e9ad918dcb2fabb53');
+    const indiaData = await india.json();
+    const global = await fetch('https://newsapi.org/v2/top-headlines?language=en&apiKey=4df849b405a84d6e9ad918dcb2fabb53');
+    const globalData = await global.json();
+
+    const headlines = [
+      ...cryptoData.articles.map(a=>a.title),
+      ...indiaData.articles.map(a=>a.title),
+      ...globalData.articles.map(a=>a.title)
+    ].join(' · ');
+
     document.getElementById('news-ticker').innerHTML = `<span>${headlines}</span>`;
-  } catch(err){console.error(err);}
+  } catch(err){
+    console.error(err);
+    document.getElementById('news-ticker').innerHTML = `<span>Unable to fetch news</span>`;
+  }
 }
 
 fetchNews();
-setInterval(fetchNews,600000); // Refresh every 10 mins
+setInterval(fetchNews, 600000); // Refresh every 10 mins
 </script>
 
 </body>
