@@ -38,6 +38,8 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .signals-table tr.buy{background:#003300;color:#00ff7f;cursor:pointer;}
 .signals-table tr.sell{background:#330000;color:#ff4d4d;cursor:pointer;}
 .signals-table tr.hold{background:#111;color:#ccc;cursor:pointer;}
+.signals-table td.profit{color:#00ff7f;font-weight:700;}
+.signals-table td.loss{color:#ff4d4d;font-weight:700;}
 .membership{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
 .card{background:#161b22;padding:30px;border-radius:10px;flex:1 1 250px;min-width:250px;text-align:center;}
 .card h3{font-size:1.5rem;margin-bottom:15px;color:#00ff7f;}
@@ -50,8 +52,10 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .telegram-section a{display:inline-block;margin:10px;padding:12px 24px;border-radius:6px;font-weight:700;}
 .telegram-free{background:#00ff7f;color:#000;}
 .telegram-vip{background:#ff007f;color:#fff;}
+#news-featured{background:#222;padding:15px;border-radius:10px;margin:20px 0;text-align:center;}
+#news-featured a{color:#00ff7f;font-weight:700;text-decoration:none;}
 #news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;}
-#news-ticker span{display:inline-block;animation:scroll 80s linear infinite;}
+#news-ticker span{display:inline-block;animation:scroll 100s linear infinite;}
 @keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 /* Modal */
 .modal {display:none;position:fixed;z-index:2000;padding-top:100px;left:0;top:0;width:100%;height:100%;overflow:auto;background:rgba(0,0,0,0.8);}
@@ -89,6 +93,10 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </div>
 </section>
 
+<!-- Featured News -->
+<div id="news-featured">Loading featured article...</div>
+
+<!-- Scrolling News Ticker -->
 <div id="news-ticker"><span>Loading news...</span></div>
 
 <section id="charts">
@@ -108,7 +116,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <h2>Live Signals</h2>
 <table class="signals-table">
 <thead>
-<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Target</th><th>Status</th><th>RSI</th></tr>
+<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Time</th><th>RSI</th></tr>
 </thead>
 <tbody id="signals-body">
 <!-- Live signals will appear here -->
@@ -162,7 +170,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// BTC/USD RSI Live
+// BTC/USD RSI Live & Signals
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
 const signalsBody = document.getElementById('signals-body');
@@ -213,43 +221,40 @@ function updateSignalsTable(rsi, price){
   if(rsi<30) action='buy';
   else if(rsi>70) action='sell';
   else action='hold';
-  const date = new Date().toLocaleString();
-  const target = action==='buy' ? (price*1.002).toFixed(2) : action==='sell' ? (price*0.998).toFixed(2) : '-';
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
+  const exit = action==='buy' ? (price*1.002).toFixed(2) : action==='sell' ? (price*0.998).toFixed(2) : '-';
+  const pl = exit==='-' ? '-' : (exit-price).toFixed(2);
   
-  // Add new row only if status changed or first signal
-  if(action!==lastStatus){
-    const row = document.createElement('tr');
-    row.className = action;
-    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${target}</td><td>${action.toUpperCase()}</td><td>${rsi.toFixed(2)}</td>`;
-    signalsBody.prepend(row); // newest on top
-    lastStatus = action;
-    signalsHistory.unshift({date, coin:'BTC/USDT', entry:price.toFixed(2), target, status:action.toUpperCase(), rsi:rsi.toFixed(2)});
-  }
+  // Add new row for each signal
+  const row = document.createElement('tr');
+  row.className = action;
+  row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${pl>=0?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
+  signalsBody.prepend(row); // newest on top
 }
 
 // Click row to open modal
 const modal = document.getElementById("signalModal");
 const modalText = document.getElementById("modal-content-text");
 const spanClose = document.getElementsByClassName("close")[0];
-
 signalsBody.addEventListener('click', e=>{
   const row = e.target.closest('tr');
   if(!row) return;
   const cells = row.children;
-  modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nTarget: ${cells[3].textContent}\nStatus: ${cells[4].textContent}\nRSI: ${cells[5].textContent}`;
+  modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nExit: ${cells[3].textContent}\nP/L: ${cells[4].textContent}\nStatus: ${cells[5].textContent}\nTime: ${cells[6].textContent}\nRSI: ${cells[7].textContent}`;
   modal.style.display = "block";
 });
-
-spanClose.onclick = function() { modal.style.display = "none"; }
-window.onclick = function(event){ if(event.target==modal){modal.style.display="none";} }
+spanClose.onclick = function(){ modal.style.display="none";}
+window.onclick = function(event){ if(event.target==modal){modal.style.display="none";}}
 
 // Initial fetch & refresh every minute
 fetchCandles();
 setInterval(fetchCandles, 60000);
 
-// RSS News Ticker
-async function fetchRSS(url) {
-  try {
+// News Ticker & Featured
+const newsFeatured = document.getElementById('news-featured');
+async function fetchRSS(url){
+  try{
     const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
     const res = await fetch(proxy);
     const data = await res.json();
@@ -257,35 +262,38 @@ async function fetchRSS(url) {
     const xml = parser.parseFromString(data.contents, "text/xml");
     const items = xml.querySelectorAll("item");
     let headlines = [];
-    items.forEach((item, i) => {
-      if(i<10){
-        const title = item.querySelector("title").textContent;
-        const link = item.querySelector("link").textContent;
-        headlines.push(`<a href="${link}" target="_blank">${title}</a>`);
-      }
+    items.forEach((item,i)=>{
+      const title = item.querySelector("title").textContent;
+      const link = item.querySelector("link").textContent;
+      headlines.push({title, link});
     });
     return headlines;
-  } catch(err){ console.error(err); return []; }
+  }catch(err){ console.error(err); return [];}
 }
 
-async function updateNewsTicker(){
+async function updateNews(){
   const cryptoFeed = 'https://cryptonews.com/news/feed';
   const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
   const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
-
-  const [cryptoNews, indiaNews, globalNews] = await Promise.all([
-    fetchRSS(cryptoFeed),
-    fetchRSS(indiaFeed),
-    fetchRSS(globalFeed)
-  ]);
-
-  const headlines = [...cryptoNews,...indiaNews,...globalNews].join(' · ');
-  document.getElementById('news-ticker').innerHTML = `<span>${headlines}</span>`;
+  const [crypto, india, globalNews] = await Promise.all([fetchRSS(cryptoFeed), fetchRSS(indiaFeed), fetchRSS(globalFeed)]);
+  const allNews = [...crypto,...india,...globalNews];
+  
+  if(allNews.length>0){
+    // Featured article
+    newsFeatured.innerHTML = `<a href="${allNews[0].link}" target="_blank">${allNews[0].title}</a>`;
+    
+    // Scrolling ticker
+    const tickerHtml = allNews.slice(1,15).map((item,i)=>{
+      const color = i%2===0?'#00ff7f':'#ff007f';
+      return `<a href="${item.link}" target="_blank" style="color:${color};margin-right:50px;">${item.title}</a>`;
+    }).join(' · ');
+    document.getElementById('news-ticker').innerHTML = `<span>${tickerHtml}</span>`;
+  }
 }
 
-updateNewsTicker();
-setInterval(updateNewsTicker, 600000); // refresh every 10 min
-</script>
+updateNews();
+setInterval(updateNews,600000);
 
+</script>
 </body>
 </html>
