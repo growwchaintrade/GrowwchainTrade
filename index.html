@@ -52,9 +52,18 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .telegram-section a{display:inline-block;margin:10px;padding:12px 24px;border-radius:6px;font-weight:700;}
 .telegram-free{background:#00ff7f;color:#000;}
 .telegram-vip{background:#ff007f;color:#fff;}
-#news-featured{background:#222;padding:15px;border-radius:10px;margin:20px 0;text-align:center;}
+
+/* News Section */
+#news-tabs{display:flex;justify-content:center;gap:20px;margin-bottom:15px;}
+#news-tabs button{padding:10px 20px;border-radius:5px;border:none;font-weight:700;cursor:pointer;background:#161b22;color:#00ff7f;}
+#news-tabs button.active{background:#00ff7f;color:#000;}
+#news-featured{background:#222;padding:15px;border-radius:10px;margin:10px 0;text-align:center;min-height:60px;}
 #news-featured a{color:#00ff7f;font-weight:700;text-decoration:none;}
-#news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;}
+
+/* Carousel */
+#carousel{display:flex;overflow:hidden;border-radius:10px;margin-bottom:10px;}
+.carousel-item{flex:0 0 100%;padding:10px;background:#161b22;margin-right:10px;border-radius:10px;transition:transform 0.5s;}
+#news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;margin-bottom:30px;}
 #news-ticker span{display:inline-block;animation:scroll 100s linear infinite;}
 @keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 /* Modal */
@@ -93,10 +102,14 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </div>
 </section>
 
-<!-- Featured News -->
+<!-- News Section -->
+<div id="news-tabs">
+<button class="active" data-type="crypto">Crypto News</button>
+<button data-type="india">Indian News</button>
+<button data-type="global">Global News</button>
+</div>
 <div id="news-featured">Loading featured article...</div>
-
-<!-- Scrolling News Ticker -->
+<div id="carousel"></div>
 <div id="news-ticker"><span>Loading news...</span></div>
 
 <section id="charts">
@@ -170,130 +183,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// BTC/USD RSI Live & Signals
-const priceEl = document.getElementById('btc-price');
-const tradeEntries = document.getElementById('trade-entries');
-const signalsBody = document.getElementById('signals-body');
-const RSI_PERIOD = 14;
-let closes = [];
-let lastStatus = null;
-let signalsHistory = [];
-
-async function fetchCandles(){
-  try{
-    const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
-    const data = await res.json();
-    closes = data.map(c=>parseFloat(c[4]));
-    calculateRSI();
-  } catch(err){ console.error(err);}
-}
-
-function calculateRSI(){
-  if(closes.length < RSI_PERIOD) return;
-  let gains=0, losses=0;
-  for(let i=1;i<closes.length;i++){
-    let diff=closes[i]-closes[i-1];
-    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
-  }
-  const avgGain=gains/RSI_PERIOD;
-  const avgLoss=losses/RSI_PERIOD;
-  const rs=avgGain/avgLoss;
-  const rsi=100-(100/(1+rs));
-  updateTradeEntries(rsi, closes[closes.length-1]);
-  updateSignalsTable(rsi, closes[closes.length-1]);
-}
-
-function updateTradeEntries(rsi, price){
-  let action='';
-  if(rsi<30) action='buy';
-  else if(rsi>70) action='sell';
-  else action='hold';
-  priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
-  tradeEntries.innerHTML = `
-    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
-      <p>RSI: ${rsi.toFixed(2)}</p>
-      <p>Signal: ${action.toUpperCase()}</p>
-    </div>`;
-}
-
-function updateSignalsTable(rsi, price){
-  let action='';
-  if(rsi<30) action='buy';
-  else if(rsi>70) action='sell';
-  else action='hold';
-  const date = new Date().toLocaleDateString();
-  const time = new Date().toLocaleTimeString();
-  const exit = action==='buy' ? (price*1.002).toFixed(2) : action==='sell' ? (price*0.998).toFixed(2) : '-';
-  const pl = exit==='-' ? '-' : (exit-price).toFixed(2);
-  
-  // Add new row for each signal
-  const row = document.createElement('tr');
-  row.className = action;
-  row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${pl>=0?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
-  signalsBody.prepend(row); // newest on top
-}
-
-// Click row to open modal
-const modal = document.getElementById("signalModal");
-const modalText = document.getElementById("modal-content-text");
-const spanClose = document.getElementsByClassName("close")[0];
-signalsBody.addEventListener('click', e=>{
-  const row = e.target.closest('tr');
-  if(!row) return;
-  const cells = row.children;
-  modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nExit: ${cells[3].textContent}\nP/L: ${cells[4].textContent}\nStatus: ${cells[5].textContent}\nTime: ${cells[6].textContent}\nRSI: ${cells[7].textContent}`;
-  modal.style.display = "block";
-});
-spanClose.onclick = function(){ modal.style.display="none";}
-window.onclick = function(event){ if(event.target==modal){modal.style.display="none";}}
-
-// Initial fetch & refresh every minute
-fetchCandles();
-setInterval(fetchCandles, 60000);
-
-// News Ticker & Featured
-const newsFeatured = document.getElementById('news-featured');
-async function fetchRSS(url){
-  try{
-    const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-    const res = await fetch(proxy);
-    const data = await res.json();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(data.contents, "text/xml");
-    const items = xml.querySelectorAll("item");
-    let headlines = [];
-    items.forEach((item,i)=>{
-      const title = item.querySelector("title").textContent;
-      const link = item.querySelector("link").textContent;
-      headlines.push({title, link});
-    });
-    return headlines;
-  }catch(err){ console.error(err); return [];}
-}
-
-async function updateNews(){
-  const cryptoFeed = 'https://cryptonews.com/news/feed';
-  const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
-  const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
-  const [crypto, india, globalNews] = await Promise.all([fetchRSS(cryptoFeed), fetchRSS(indiaFeed), fetchRSS(globalFeed)]);
-  const allNews = [...crypto,...india,...globalNews];
-  
-  if(allNews.length>0){
-    // Featured article
-    newsFeatured.innerHTML = `<a href="${allNews[0].link}" target="_blank">${allNews[0].title}</a>`;
-    
-    // Scrolling ticker
-    const tickerHtml = allNews.slice(1,15).map((item,i)=>{
-      const color = i%2===0?'#00ff7f':'#ff007f';
-      return `<a href="${item.link}" target="_blank" style="color:${color};margin-right:50px;">${item.title}</a>`;
-    }).join(' · ');
-    document.getElementById('news-ticker').innerHTML = `<span>${tickerHtml}</span>`;
-  }
-}
-
-updateNews();
-setInterval(updateNews,600000);
-
+// News JS, Signal JS, BTC RSI JS will be added here next
 </script>
 </body>
 </html>
