@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GrowwChainTrade - Live Crypto Dashboard</title>
+<title>GrowwChainTrade - Live Crypto Signals</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
 body{background:#0d1117;color:#fff;line-height:1.6;}
@@ -33,9 +32,8 @@ nav ul li{list-style:none;}
 section{padding:60px 20px;}
 section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 
-/* Charts Grid */
-.charts-grid{display:grid;grid-template-columns:1fr;gap:20px;}
-.tradingview-widget-container{width:100%;height:500px;}
+/* TradingView Charts */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
 
 /* Signals Table */
 .signals-table{width:100%;border-collapse:collapse;margin-top:20px;}
@@ -43,7 +41,6 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .signals-table th{background:#161b22;color:#00ff7f;}
 .signals-table tr.win{background:#003300;color:#00ff7f;}
 .signals-table tr.loss{background:#330000;color:#ff4d4d;}
-.signals-table tr.expired{background:#111;color:#666;}
 
 /* Membership */
 .membership{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
@@ -63,15 +60,13 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 
 /* Live News Ticker */
 #news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;}
-#news-ticker span{display:inline-block;margin-right:50px;animation:scroll 40s linear infinite;}
+#news-ticker span{display:inline-block;margin-right:50px;animation:scroll 30s linear infinite;}
 @keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 
 /* Live BTC/USD */
 #btc-price{font-size:1.5rem;text-align:center;margin-bottom:15px;}
 #trade-entries{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;}
-.trade-card{background:#161b22;padding:15px;border-radius:8px;text-align:center;transition:all 0.3s;}
-.trade-card.buy{box-shadow:0 0 15px #00ff7f;}
-.trade-card.sell{box-shadow:0 0 15px #ff007f;}
+.trade-card{background:#161b22;padding:15px;border-radius:8px;text-align:center;}
 .trade-card p{margin:5px 0;}
 </style>
 </head>
@@ -116,8 +111,6 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 <div class="tradingview-widget-container"><div id="tv-widget-btc"></div></div>
 <div class="tradingview-widget-container"><div id="tv-widget-eth"></div></div>
 <div class="tradingview-widget-container"><div id="tv-widget-bnb"></div></div>
-<div class="tradingview-widget-container"><div id="tv-widget-ada"></div></div>
-<div class="tradingview-widget-container"><div id="tv-widget-sol"></div></div>
 </div>
 </section>
 
@@ -136,9 +129,9 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 <tr><th>Date</th><th>Coin</th><th>Entry</th><th>Target</th><th>Status</th></tr>
 </thead>
 <tbody id="signals-body">
-<tr data-date="2025-10-01" class="win"><td>01-10-2025</td><td>BTC/USDT</td><td>52000</td><td>53000</td><td>Win</td></tr>
-<tr data-date="2025-10-01" class="loss"><td>01-10-2025</td><td>ETH/USDT</td><td>3500</td><td>3400</td><td>Loss</td></tr>
-<tr data-date="2025-09-30" class="win"><td>30-09-2025</td><td>BNB/USDT</td><td>450</td><td>470</td><td>Win</td></tr>
+<tr class="win"><td>01-10-2025</td><td>BTC/USDT</td><td>52000</td><td>53000</td><td>Win</td></tr>
+<tr class="loss"><td>01-10-2025</td><td>ETH/USDT</td><td>3500</td><td>3400</td><td>Loss</td></tr>
+<tr class="win"><td>30-09-2025</td><td>BNB/USDT</td><td>450</td><td>470</td><td>Win</td></tr>
 </tbody>
 </table>
 </section>
@@ -172,7 +165,7 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 <section class="telegram-section" id="telegram">
 <h2>Join Our Telegram Community</h2>
 <a href="https://t.me/yourFreeChannel" class="telegram-free">Join Free Channel</a>
-<a href="https://t.me/yourVIPChannel" class="telegram-vip">Join VIP</a>
+<a href="https://t.me/yourVIPChannel" class="telegram-vip">Join VIP Channel</a>
 </section>
 
 <!-- Footer -->
@@ -182,4 +175,48 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 <p>&copy; 2025 GrowwChainTrade</p>
 </footer>
 
-<!-- Scripts will be next to include TradingView, BTC price, news, alerts -->
+<!-- TradingView Widgets -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+function createTradingView(symbol, container){
+new TradingView.widget({container_id:container,autosize:true,symbol:symbol,interval:"60",timezone:"Etc/UTC",theme:"dark",style:"1",locale:"en",toolbar_bg:"#161b22",enable_publishing:false,allow_symbol_change:true});
+}
+createTradingView("BINANCE:BTCUSDT","tv-widget-btc");
+createTradingView("BINANCE:ETHUSDT","tv-widget-eth");
+createTradingView("BINANCE:BNBUSDT","tv-widget-bnb");
+</script>
+
+<!-- Live BTC/USD -->
+<script>
+const priceEl=document.getElementById('price');
+const tradeEntries=document.getElementById('trade-entries');
+const ws=new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+ws.onmessage=function(event){
+    const data=JSON.parse(event.data);
+    const price=parseFloat(data.c).toFixed(2);
+    priceEl.textContent=price;
+    tradeEntries.innerHTML=`<div class="trade-card"><p>Buy Zone: ${(price-200).toFixed(2)}</p></div>
+    <div class="trade-card"><p>Sell Zone: ${(parseFloat(price)+200).toFixed(2)}</p></div>
+    <div class="trade-card"><p>Current Price: ${price}</p></div>`;
+};
+</script>
+
+<!-- Live Crypto News Ticker -->
+<script>
+const newsTicker=document.getElementById('news-ticker');
+async function fetchNews(){
+    try{
+        const res=await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        const data=await res.json();
+        newsTicker.innerHTML=data.Data.slice(0,10).map(n=>`${n.title} · `).join('');
+    }catch(err){
+        newsTicker.textContent='Unable to load news.';
+        console.error(err);
+    }
+}
+fetchNews();
+setInterval(fetchNews,600000); // refresh every 10 mins
+</script>
+
+</body>
+</html>
