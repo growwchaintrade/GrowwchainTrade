@@ -1,299 +1,227 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GrowwChainTrade — Signals & Community</title>
-  <meta name="description" content="Grow together. High-quality crypto signals, clear entries, stop-losses and targets. Join our Telegram tribe." />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://s3.tradingview.com/tv.js"></script>
-  <style>
-    /* === Reset & Fonts === */
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-    body{background:#0f0f0f;color:#fff;line-height:1.5;overflow-x:hidden;}
-    a{color:inherit;text-decoration:none;}
-    .wrap{max-width:1200px;margin:0 auto;padding:0 15px;}
-    .section{padding:80px 0;opacity:0;transform:translateY(20px);transition:0.8s ease;}
-    .section.show{opacity:1;transform:translateY(0);}
-    h1,h2,h3{margin-bottom:20px;}
-    .btn{display:inline-block;padding:10px 25px;border-radius:8px;font-weight:600;transition:0.3s;}
-    .btn:hover{opacity:0.85;transform:scale(1.05);}
-    .btn.ghost{background:transparent;border:2px solid #fff;color:#fff;}
-    .btn.big{font-size:1.2rem;padding:15px 30px;}
-    .gold{color:#FFD700;}
-    /* === Topbar & Logo === */
-    .topbar{position:sticky;top:0;width:100%;background:#111;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
-    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:15px 0;flex-wrap:wrap;}
-    .brand{display:flex;align-items:center;}
-    .brand .logo{font-size:2rem;font-weight:800;margin-right:10px;background:linear-gradient(45deg,#FFD700,#00FFFF,#FF69B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:logoGlow 3s infinite alternate;}
-    .brand .title span{font-weight:800;}
-    .brand-color{color:#FFD700;}
-    .chain-color{color:#00FFFF;}
-    .trade-color{color:#FF69B4;}
-    .navlinks a{margin:0 10px;font-weight:600;}
-    .actions a{margin-left:10px;}
-    /* === Hero === */
-    .hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;position:relative;}
-    .hero .left{flex:1;min-width:300px;padding-right:20px;}
-    .hero .right{flex:1;min-width:300px;background:#1a1a1a;padding:15px;border-radius:12px;position:relative;overflow:hidden;}
-    .chart{height:400px;width:100%;}
-    .chips button{margin:5px;padding:5px 12px;border-radius:6px;background:#222;color:#fff;border:none;cursor:pointer;transition:0.3s;}
-    .chips button.active{background:#FFD700;color:#000;box-shadow:0 0 15px #FFD700;}
-    /* === Signals === */
-    .cards{display:flex;flex-wrap:wrap;gap:15px;}
-    .signal{background:#1a1a1a;padding:15px;border-radius:12px;flex:1;min-width:250px;transition:0.4s;}
-    .signal:hover{transform:scale(1.02);}
-    .sig-top{display:flex;justify-content:space-between;margin-bottom:10px;}
-    .side.long{color:#00FF00;font-weight:700;}
-    .side.short{color:#FF0000;font-weight:700;}
-    .sig-body div{display:flex;justify-content:space-between;margin-bottom:5px;}
-    .note{margin-top:10px;font-size:0.9rem;color:#aaa;}
-    /* === Features === */
-    .grid3{display:flex;gap:20px;flex-wrap:wrap;}
-    .feature{background:#1a1a1a;padding:20px;border-radius:12px;flex:1;min-width:250px;text-align:center;transition:0.3s;}
-    .feature:hover{transform:scale(1.02);}
-    /* === VIP === */
-    .pricing{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
-    .plan{background:#1a1a1a;padding:25px;border-radius:12px;flex:1;min-width:250px;position:relative;transition:0.3s;}
-    .plan:hover{transform:scale(1.02);}
-    .plan.pro .pill{position:absolute;top:-10px;right:-10px;background:#FFD700;color:#000;padding:5px 10px;border-radius:12px;font-weight:700;}
-    .price{font-size:2rem;font-weight:800;margin:15px 0;}
-    .per{font-size:1rem;font-weight:400;}
-    /* === Contact === */
-    .contact-grid{display:flex;flex-wrap:wrap;gap:20px;}
-    .contact-card{flex:1;min-width:300px;background:#1a1a1a;padding:20px;border-radius:12px;transition:0.3s;}
-    .contact-card:hover{transform:scale(1.02);}
-    .contact-info{flex:1;min-width:250px;padding:20px;}
-    input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#222;color:#fff;transition:0.3s;}
-    input:focus,textarea:focus{box-shadow:0 0 10px #FFD700;outline:none;}
-    /* === Background === */
-    .aurora{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(270deg,#ff0044,#00ffcc,#ffcc00);background-size:600% 600%;animation:gradientShift 20s ease infinite;z-index:-1;}
-    /* === Keyframes === */
-    @keyframes logoGlow{0%{filter:drop-shadow(0 0 5px #FFD700);}100%{filter:drop-shadow(0 0 15px #FFD700);}}
-    @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
-    @media(max-width:768px){.hero{flex-direction:column;}.topbar .wrap{flex-direction:column;align-items:flex-start;}.navlinks{margin:10px 0;}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrowwChainTrade - Crypto Signals & Community</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <style>
+        /* Reset & Base */
+        * {margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
+        body {background:#0d1117;color:#ffffff;line-height:1.6;}
+        a {color:inherit;text-decoration:none;}
+        img {max-width:100%;}
+
+        /* Header */
+        header {display:flex;justify-content:space-between;align-items:center;padding:20px 50px;background:#161b22;position:sticky;top:0;z-index:1000;}
+        .logo {font-size:1.8rem;font-weight:700;color:#00ff7f;}
+        nav ul {display:flex;gap:25px;}
+        nav ul li {list-style:none;}
+        .cta-buttons a {margin-left:15px;padding:8px 16px;border-radius:5px;font-weight:700;}
+        .join-free {background:#00ff7f;color:#000;}
+        .join-vip {background:#ff007f;color:#fff;}
+
+        /* Hero */
+        .hero {display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 20px;background:linear-gradient(135deg,#0d1117,#161b22);}
+        .hero h1 {font-size:2.8rem;margin-bottom:20px;color:#00ff7f;}
+        .hero p {font-size:1.2rem;margin-bottom:30px;color:#ccc;}
+        .hero .buttons a {margin:0 10px;padding:12px 24px;border-radius:6px;font-weight:700;}
+        .hero .buttons .join-free {background:#00ff7f;color:#000;}
+        .hero .buttons .join-vip {background:#ff007f;color:#fff;}
+
+        /* Section Titles */
+        section {padding:60px 20px;}
+        section h2 {font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
+
+        /* TradingView Charts */
+        .charts-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+
+        /* Signals Table */
+        .signals-table {width:100%;border-collapse:collapse;margin-top:20px;}
+        .signals-table th, .signals-table td {padding:12px;text-align:center;border-bottom:1px solid #444;}
+        .signals-table th {background:#161b22;color:#00ff7f;}
+        .signals-table tr.win {background:#003300;color:#00ff7f;}
+        .signals-table tr.loss {background:#330000;color:#ff4d4d;}
+
+        /* Membership */
+        .membership {display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
+        .card {background:#161b22;padding:30px;border-radius:10px;flex:1 1 250px;min-width:250px;text-align:center;}
+        .card h3 {font-size:1.5rem;margin-bottom:15px;color:#00ff7f;}
+        .card ul {list-style:none;margin-bottom:20px;}
+        .card ul li {margin:10px 0;}
+        .card a {padding:10px 20px;border-radius:5px;font-weight:700;display:inline-block;}
+        .card .btn-free {background:#00ff7f;color:#000;}
+        .card .btn-vip {background:#ff007f;color:#fff;}
+
+        /* Telegram Section */
+        .telegram-section {text-align:center;}
+        .telegram-section a {display:inline-block;margin:10px;padding:12px 24px;border-radius:6px;font-weight:700;}
+        .telegram-free {background:#00ff7f;color:#000;}
+        .telegram-vip {background:#ff007f;color:#fff;}
+
+        /* Footer */
+        footer {padding:30px 20px;background:#161b22;text-align:center;color:#888;}
+        footer a {color:#00ff7f;}
+    </style>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true"></div>
 
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="wrap">
-      <div class="brand">
-        <div class="logo">G</div>
-        <div class="text">
-          <div class="title">
-            <span class="brand-color">Groww</span><span class="chain-color">Chain</span><span class="trade-color">Trade</span>
-          </div>
-          <div class="subtitle">Together We Grow in Crypto</div>
+    <!-- Header -->
+    <header>
+        <div class="logo">GrowwChainTrade</div>
+        <nav>
+            <ul>
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#charts">Charts</a></li>
+                <li><a href="#signals">Signals</a></li>
+                <li><a href="#membership">VIP</a></li>
+                <li><a href="#telegram">Telegram</a></li>
+            </ul>
+        </nav>
+        <div class="cta-buttons">
+            <a href="#telegram" class="join-free">Join Free</a>
+            <a href="#membership" class="join-vip">Join VIP</a>
         </div>
-      </div>
-      <nav class="navlinks">
-        <a href="#home">Home</a>
-        <a href="#signals">Signals</a>
-        <a href="#features">Features</a>
-        <a href="#vip">VIP</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <div class="actions">
-        <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Free Channel</a>
-        <a class="btn" href="#vip">Go VIP</a>
-      </div>
-    </div>
-    <div class="ticker"><div id="tv-ticker"></div></div>
-  </header>
+    </header>
 
-  <!-- Hero -->
-  <section id="home" class="hero section">
-    <div class="wrap grid">
-      <div class="left">
-        <h1>Premium <span class="gold">Crypto Signals</span><br>for the <span class="gold">Tribe</span></h1>
-        <p class="lead">Actionable entries, strict risk controls, and transparent performance — we grow together.</p>
-        <div class="cta-row">
-          <a class="btn big" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Telegram</a>
-          <a class="btn ghost" href="#signals">View Signals</a>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <h1>Grow Together in Crypto Trading</h1>
+        <p>Real-time signals, live charts, and a supportive community to help you succeed in crypto trading.</p>
+        <div class="buttons">
+            <a href="#telegram" class="join-free">Join Free</a>
+            <a href="#membership" class="join-vip">Join VIP</a>
         </div>
-        <div class="badges">
-          <span>BTC · ETH · SOL</span>
-          <span>Accuracy Tracker</span>
-          <span>Risk-First</span>
+    </section>
+
+    <!-- TradingView Charts -->
+    <section id="charts">
+        <h2>Live Crypto Charts</h2>
+        <div class="charts-grid">
+            <!-- BTC Chart -->
+            <div class="tradingview-widget-container">
+                <div id="tv-widget-btc"></div>
+            </div>
+            <!-- ETH Chart -->
+            <div class="tradingview-widget-container">
+                <div id="tv-widget-eth"></div>
+            </div>
+            <!-- BNB Chart -->
+            <div class="tradingview-widget-container">
+                <div id="tv-widget-bnb"></div>
+            </div>
         </div>
-      </div>
-      <div class="right card">
-        <div class="card-head">
-          <div class="dots"><span class="dot g"></span><span class="dot y"></span><span class="dot r"></span></div>
-          <div class="card-title">Live Chart</div>
+    </section>
+
+    <!-- Signals Section -->
+    <section id="signals">
+        <h2>Latest Signals</h2>
+        <table class="signals-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Coin</th>
+                    <th>Entry</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="win"><td>01-10-2025</td><td>BTC/USDT</td><td>52000</td><td>53000</td><td>Win</td></tr>
+                <tr class="loss"><td>01-10-2025</td><td>ETH/USDT</td><td>3500</td><td>3400</td><td>Loss</td></tr>
+                <tr class="win"><td>30-09-2025</td><td>BNB/USDT</td><td>450</td><td>470</td><td>Win</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Membership Section -->
+    <section id="membership">
+        <h2>Membership Plans</h2>
+        <div class="membership">
+            <div class="card">
+                <h3>Free</h3>
+                <ul>
+                    <li>2–3 signals/week</li>
+                    <li>Access to Free Telegram</li>
+                    <li>Educational Content</li>
+                </ul>
+                <a href="#telegram" class="btn-free">Join Free</a>
+            </div>
+            <div class="card">
+                <h3>VIP</h3>
+                <ul>
+                    <li>2–5 signals/day</li>
+                    <li>Priority Support</li>
+                    <li>Weekly Reports</li>
+                </ul>
+                <a href="#telegram" class="btn-vip">Join VIP</a>
+            </div>
         </div>
-        <div class="chart" id="tv-chart"></div>
-        <div class="chips">
-          <button class="chip active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
-          <button class="chip" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
-          <button class="chip" data-symbol="BINANCE:SOLUSDT">SOL/USDT</button>
-          <button class="chip" data-symbol="BINANCE:BNBUSDT">BNB/USDT</button>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Signals -->
-  <section id="signals" class="section">
-    <div class="wrap">
-      <h2>Latest Signals</h2>
-      <p class="muted">For education only — not financial advice.</p>
-      <div class="cards" id="signals-container">
-        <article class="signal">
-          <div class="sig-top"><span class="tag">BTC/USDT</span><span class="side long">LONG</span><time>Updated</time></div>
-          <div class="sig-body">
-            <div><label>Entry</label><strong id="btc-entry">Zone 1</strong></div>
-            <div><label>Stop</label><strong id="btc-stop">Defined</strong></div>
-            <div><label>Targets</label><strong id="btc-targets">T1 / T2</strong></div>
-          </div>
-          <p class="note">Replace with your live call.</p>
-        </article>
-        <article class="signal">
-          <div class="sig-top"><span class="tag">ETH/USDT</span><span class="side short">SHORT</span><time>Updated</time></div>
-          <div class="sig-body">
-            <div><label>Entry</label><strong id="eth-entry">Zone</strong></div>
-            <div><label>Stop</label><strong id="eth-stop">Defined</strong></div>
-            <div><label>Targets</label><strong id="eth-targets">T1 / T2</strong></div>
-          </div>
-          <p class="note">Replace with your live call.</p>
-        </article>
-      </div>
-      <div class="signals-foot"><span class="muted">* Past performance is not indicative of future results.</span><a class="btn" href="#vip">Get VIP</a></div>
-    </div>
-  </section>
+    <!-- Telegram Section -->
+    <section class="telegram-section" id="telegram">
+        <h2>Join Our Telegram Community</h2>
+        <a href="https://t.me/yourFreeChannel" class="telegram-free">Join Free Channel</a>
+        <a href="https://t.me/yourVIPChannel" class="telegram-vip">Join VIP Channel</a>
+    </section>
 
-  <!-- VIP -->
-  <section id="vip" class="section">
-    <div class="wrap">
-      <h2>VIP Membership</h2>
-      <div class="pricing">
-        <div class="plan">
-          <h3>Free Community</h3>
-          <ul><li>BTC/ETH updates</li><li>2–3 sample signals/week</li><li>Education</li></ul>
-          <a class="btn ghost" target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join Free</a>
-        </div>
-        <div class="plan pro">
-          <div class="pill">Popular</div>
-          <h3>VIP Signals</h3>
-          <p class="price">₹999 <span class="per">/month</span></p>
-          <ul><li>2–5 premium signals/day</li><li>Priority support</li><li>Weekly report</li></ul>
-          <a class="btn" href="#contact">Join VIP</a>
-        </div>
-      </div>
-    </div>
-  </section>
+    <!-- Footer -->
+    <footer>
+        <p>Contact: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></p>
+        <p>Signals are educational and not financial advice.</p>
+        <p>&copy; 2025 GrowwChainTrade</p>
+    </footer>
 
-  <!-- Contact -->
-  <section id="contact" class="section">
-    <div class="wrap contact-grid">
-      <div class="contact-card">
-        <h2>Contact</h2>
-        <p class="muted">Questions or VIP signups — send a message and we'll reply.</p>
-        <form action="https://formsubmit.co/newmoneytrader113@gmail.com" method="POST" class="contact-form" onsubmit="alert('Message sent!');">
-          <input type="hidden" name="_subject" value="New message from GrowwChainTrade site">
-          <input type="text" name="name" placeholder="Your name" required>
-          <input type="email" name="email" placeholder="Email" required>
-          <textarea name="message" rows="5" placeholder="Message" required></textarea>
-          <button type="submit" class="btn">Send Message</button>
-        </form>
-      </div>
-      <div class="contact-info">
-        <h3>Quick Links</h3>
-        <ul>
-          <li>Telegram (Free): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join</a></li>
-          <li>Telegram (VIP): <a target="_blank" href="https://t.me/+8xAOWzzsvSIwMjA1">Join VIP</a></li>
-          <li>Email: <a href="mailto:newmoneytrader113@gmail.com">newmoneytrader113@gmail.com</a></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- Scripts -->
-  <script>
-    // === Scroll fade-in ===
-    const sections = document.querySelectorAll('.section');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('show'); } });
-    }, {threshold:0.2});
-    sections.forEach(sec => observer.observe(sec));
-
-    // === TradingView Chart ===
-    let tvWidget = null;
-    function createChart(symbol = "BINANCE:BTCUSDT") {
-      if(tvWidget) tvWidget.remove();
-      tvWidget = new TradingView.widget({
-        container_id: "tv-chart",
-        width: "100%",
-        height: 400,
-        symbol: symbol,
-        interval: "60",
-        timezone: "Asia/Kolkata",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        toolbar_bg: "#1a1a1a",
-        enable_publishing: false,
-        hide_top_toolbar: false,
-        allow_symbol_change: true
-      });
-    }
-    createChart();
-    document.querySelectorAll(".chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        createChart(btn.getAttribute("data-symbol"));
-      });
-    });
-
-    // === TradingView Ticker ===
-    new TradingView.widget({
-      container_id: "tv-ticker",
-      width: "100%",
-      height: 50,
-      symbols:[
-        {"proName":"BINANCE:BTCUSDT","title":"BTC/USDT"},
-        {"proName":"BINANCE:ETHUSDT","title":"ETH/USDT"},
-        {"proName":"BINANCE:SOLUSDT","title":"SOL/USDT"},
-        {"proName":"BINANCE:BNBUSDT","title":"BNB/USDT"}
-      ],
-      locale:"en",
-      colorTheme:"dark",
-      isTransparent:true,
-      showSymbolLogo:true
-    });
-
-    // === Live Google Sheet Updates ===
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQI4YMvF888p_5bzqS-eE0v_-svt1jv5XXqUw5RCLDTVaVOG3dYzlHK3J0vCuACwbdtZHUYfJhab8aF/pub?output=csv";
-
-    async function updateSignals() {
-      try {
-        const res = await fetch(sheetURL + "&t=" + Date.now());
-        const csv = await res.text();
-        const rows = csv.split("\n").map(r => r.split(","));
-        // Assuming CSV structure: Pair, Entry, Stop, Targets
-        rows.forEach(r => {
-          const pair = r[0]?.trim().toUpperCase();
-          if(pair === "BTC/USDT") {
-            document.getElementById("btc-entry").textContent = r[1];
-            document.getElementById("btc-stop").textContent = r[2];
-            document.getElementById("btc-targets").textContent = r[3];
-          }
-          if(pair === "ETH/USDT") {
-            document.getElementById("eth-entry").textContent = r[1];
-            document.getElementById("eth-stop").textContent = r[2];
-            document.getElementById("eth-targets").textContent = r[3];
-          }
+    <!-- TradingView Widgets JS -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        // BTC Widget
+        new TradingView.widget({
+            "container_id": "tv-widget-btc",
+            "autosize": true,
+            "symbol": "BINANCE:BTCUSDT",
+            "interval": "60",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#161b22",
+            "enable_publishing": false,
+            "allow_symbol_change": true
         });
-      } catch(err) {
-        console.error("Error updating signals:", err);
-      }
-    }
-    updateSignals();
-    setInterval(updateSignals, 30000);
-  </script>
+
+        // ETH Widget
+        new TradingView.widget({
+            "container_id": "tv-widget-eth",
+            "autosize": true,
+            "symbol": "BINANCE:ETHUSDT",
+            "interval": "60",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#161b22",
+            "enable_publishing": false,
+            "allow_symbol_change": true
+        });
+
+        // BNB Widget
+        new TradingView.widget({
+            "container_id": "tv-widget-bnb",
+            "autosize": true,
+            "symbol": "BINANCE:BNBUSDT",
+            "interval": "60",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#161b22",
+            "enable_publishing": false,
+            "allow_symbol_change": true
+        });
+    </script>
 </body>
 </html>
