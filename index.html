@@ -62,9 +62,8 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 #carousel{display:flex;overflow:hidden;border-radius:10px;margin-bottom:10px;}
 .carousel-item{flex:0 0 100%;padding:10px;background:#161b22;margin-right:10px;border-radius:10px;transition:transform 0.5s;}
 #news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;margin-bottom:30px;}
-#news-ticker span{display:inline-block;animation:scroll 100s linear infinite;}
+#news-ticker span{display:inline-block;animation:scroll 120s linear infinite;}
 @keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
-/* Modal */
 .modal {display:none;position:fixed;z-index:2000;padding-top:100px;left:0;top:0;width:100%;height:100%;overflow:auto;background:rgba(0,0,0,0.8);}
 .modal-content {background:#161b22;margin:auto;padding:20px;border-radius:10px;width:90%;max-width:500px;color:#fff;}
 .close {color:#ff007f;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
@@ -130,7 +129,6 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <tr><th>Date</th><th>Coin</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Time</th><th>RSI</th></tr>
 </thead>
 <tbody id="signals-body">
-<!-- Live signals will appear here -->
 </tbody>
 </table>
 </section>
@@ -181,10 +179,177 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// ------------------- NEWS + BTC/USD RSI -------------------
-// Full working JS code with rss2json for crypto/india/global news
-// (Paste the JS code I wrote in previous message here)
+// ------------------- News + BTC/USD RSI -------------------
+const newsFeatured = document.getElementById('news-featured');
+const newsTicker = document.getElementById('news-ticker');
+const carousel = document.getElementById('carousel');
+const tabs = document.querySelectorAll('#news-tabs button');
 
+let newsData = { crypto: [], india: [], global: [] };
+let currentTab = 'crypto';
+let carouselIndex = 0;
+const cryptoKeywords = ['bitcoin','btc','ethereum','eth','bnb','cardano','ada','solana','sol'];
+const indiaKeywords = ['india','rbi','government','govt','nirmala','finance','budget'];
+
+async function rssToJson(url) {
+    try {
+        const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+        const res = await fetch(api);
+        const data = await res.json();
+        if(!data.items) return [];
+        return data.items.map(item => ({
+            title: item.title,
+            link: item.link,
+            desc: item.description
+        }));
+    } catch(err){
+        console.error('RSS fetch error:', err);
+        return [];
+    }
+}
+
+async function updateNewsData() {
+    const cryptoFeed = 'https://www.coindesk.com/arc/outboundfeeds/rss/';
+    const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
+    const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
+
+    const [crypto, india, globalNews] = await Promise.all([
+        rssToJson(cryptoFeed),
+        rssToJson(indiaFeed),
+        rssToJson(globalFeed)
+    ]);
+
+    newsData.crypto = crypto;
+    newsData.india = india;
+    newsData.global = globalNews;
+
+    renderNews(currentTab);
+}
+
+function renderNews(tab){
+    currentTab = tab;
+    const news = newsData[tab] || [];
+    if(news.length === 0) {
+        newsFeatured.textContent = 'No news available';
+        newsTicker.innerHTML = '<span>No news available</span>';
+        carousel.innerHTML = '';
+        return;
+    }
+    newsFeatured.innerHTML = `<a href="${news[0].link}" target="_blank">${news[0].title}</a>`;
+
+    const top3 = news.slice(0,3);
+    carousel.innerHTML = top3.map((item, i)=>{
+        return `<div class="carousel-item" style="transform:translateX(-${carouselIndex*100}%);">
+            <a href="${item.link}" target="_blank"><strong>${item.title}</strong></a>
+            <p>${item.desc}</p>
+        </div>`;
+    }).join('');
+
+    const tickerArticles = news.slice(3,15).map((item,i)=>{
+        let color = '#ccc';
+        const titleLower = item.title.toLowerCase();
+        if(cryptoKeywords.some(k=>titleLower.includes(k))) color='#00ff7f';
+        if(indiaKeywords.some(k=>titleLower.includes(k))) color='#ffae00';
+        return `<a href="${item.link}" target="_blank" style="color:${color};margin-right:50px;">${item.title}</a>`;
+    }).join(' · ');
+    newsTicker.innerHTML = `<span>${tickerArticles}</span>`;
+}
+
+tabs.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+        tabs.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        renderNews(btn.dataset.type);
+    });
+});
+
+setInterval(()=>{
+    if(!newsData[currentTab] || newsData[currentTab].length===0) return;
+    const length = Math.min(3, newsData[currentTab].length);
+    carouselIndex = (carouselIndex+1)%length;
+    const items = document.querySelectorAll('.carousel-item');
+    items.forEach((el,i)=>{
+        el.style.transform = `translateX(-${carouselIndex*100}%)`;
+    });
+},10000);
+
+updateNewsData();
+setInterval(updateNewsData,600000);
+
+// ------------------- BTC/USD RSI Signals -------------------
+const priceEl = document.getElementById('btc-price');
+const tradeEntries = document.getElementById('trade-entries');
+const signalsBody = document.getElementById('signals-body');
+const RSI_PERIOD = 14;
+let closes = [];
+
+async function fetchCandles(){
+    try{
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
+        const data = await res.json();
+        closes = data.map(c=>parseFloat(c[4]));
+        calculateRSI();
+    } catch(err){ console.error(err);}
+}
+
+function calculateRSI(){
+    if(closes.length < RSI_PERIOD) return;
+    let gains=0, losses=0;
+    for(let i=1;i<closes.length;i++){
+        let diff=closes[i]-closes[i-1];
+        if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+    }
+    const avgGain=gains/RSI_PERIOD;
+    const avgLoss=losses/RSI_PERIOD;
+    const rs=avgGain/avgLoss;
+    const rsi=100-(100/(1+rs));
+    updateTradeEntries(rsi, closes[closes.length-1]);
+    updateSignalsTable(rsi, closes[closes.length-1]);
+}
+
+function updateTradeEntries(rsi, price){
+    let action='';
+    if(rsi<30) action='buy';
+    else if(rsi>70) action='sell';
+    else action='hold';
+    priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
+    tradeEntries.innerHTML = `
+    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
+      <p>RSI: ${rsi.toFixed(2)}</p>
+      <p>Signal: ${action.toUpperCase()}</p>
+    </div>`;
+}
+
+function updateSignalsTable(rsi, price){
+    let action='';
+    if(rsi<30) action='buy';
+    else if(rsi>70) action='sell';
+    else action='hold';
+    const date = new Date().toLocaleDateString();
+    const time = new Date().toLocaleTimeString();
+    const exit = action==='buy'? (price*1.002).toFixed(2) : action==='sell'? (price*0.998).toFixed(2) : '-';
+    const pl = exit==='-'? '-' : (exit-price).toFixed(2);
+    const row = document.createElement('tr');
+    row.className = action;
+    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${pl>=0?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
+    signalsBody.prepend(row);
+}
+
+const modal = document.getElementById("signalModal");
+const modalText = document.getElementById("modal-content-text");
+const spanClose = document.getElementsByClassName("close")[0];
+signalsBody.addEventListener('click', e=>{
+    const row = e.target.closest('tr');
+    if(!row) return;
+    const cells = row.children;
+    modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nExit: ${cells[3].textContent}\nP/L: ${cells[4].textContent}\nStatus: ${cells[5].textContent}\nTime: ${cells[6].textContent}\nRSI: ${cells[7].textContent}`;
+    modal.style.display = "block";
+});
+spanClose.onclick = ()=>{modal.style.display="none";}
+window.onclick = e=>{if(e.target==modal) modal.style.display="none";}
+
+fetchCandles();
+setInterval(fetchCandles,60000);
 </script>
 
 </body>
