@@ -32,11 +32,11 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .trade-card.buy{box-shadow:0 0 15px #00ff7f;}
 .trade-card.sell{box-shadow:0 0 15px #ff007f;}
 .trade-card.hold{box-shadow:0 0 10px #666;}
-.signals-table{width:100%;border-collapse:collapse;margin-top:20px;}
+.signals-table{width:100%;border-collapse:collapse;margin-top:20px;background:#161b22;border-radius:10px;overflow:hidden;}
 .signals-table th,.signals-table td{padding:12px;text-align:center;border-bottom:1px solid #444;}
-.signals-table th{background:#161b22;color:#00ff7f;}
-.signals-table tr.buy{background:#003300;color:#00ff7f;cursor:pointer;}
-.signals-table tr.sell{background:#330000;color:#ff4d4d;cursor:pointer;}
+.signals-table th{background:#222;color:#00ff7f;}
+.signals-table tr.profit{background:#003300;color:#00ff7f;cursor:pointer;}
+.signals-table tr.loss{background:#330000;color:#ff4d4d;cursor:pointer;}
 .signals-table tr.hold{background:#111;color:#ccc;cursor:pointer;}
 .signals-table td.profit{color:#00ff7f;font-weight:700;}
 .signals-table td.loss{color:#ff4d4d;font-weight:700;}
@@ -68,6 +68,7 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .modal-content {background:#161b22;margin:auto;padding:20px;border-radius:10px;width:90%;max-width:500px;color:#fff;}
 .close {color:#ff007f;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
 footer{background:#161b22;text-align:center;padding:20px;}
+.copy-btn{margin-bottom:10px;padding:8px 16px;background:#00ff7f;color:#000;border:none;border-radius:5px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -124,11 +125,12 @@ footer{background:#161b22;text-align:center;padding:20px;}
 
 <section id="signals">
 <h2>Live Signals</h2>
-<table class="signals-table">
+<button class="copy-btn" onclick="copyTable()">Copy All Signals</button>
+<table class="signals-table" id="signals-body">
 <thead>
 <tr><th>Date</th><th>Coin</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Time</th><th>RSI</th></tr>
 </thead>
-<tbody id="signals-body">
+<tbody>
 </tbody>
 </table>
 </section>
@@ -179,17 +181,14 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// ------------------- News + BTC/USD RSI -------------------
+// ------------------- NEWS + BTC/USD RSI -------------------
 const newsFeatured = document.getElementById('news-featured');
 const newsTicker = document.getElementById('news-ticker');
 const carousel = document.getElementById('carousel');
 const tabs = document.querySelectorAll('#news-tabs button');
-
 let newsData = { crypto: [], india: [], global: [] };
 let currentTab = 'crypto';
 let carouselIndex = 0;
-const cryptoKeywords = ['bitcoin','btc','ethereum','eth','bnb','cardano','ada','solana','sol'];
-const indiaKeywords = ['india','rbi','government','govt','nirmala','finance','budget'];
 
 async function rssToJson(url) {
     try {
@@ -197,160 +196,88 @@ async function rssToJson(url) {
         const res = await fetch(api);
         const data = await res.json();
         if(!data.items) return [];
-        return data.items.map(item => ({
-            title: item.title,
-            link: item.link,
-            desc: item.description
-        }));
-    } catch(err){
-        console.error('RSS fetch error:', err);
-        return [];
-    }
+        return data.items.map(item => ({ title: item.title, link: item.link, desc: item.description }));
+    } catch(err){ console.error('RSS fetch error:', err); return []; }
 }
 
 async function updateNewsData() {
     const cryptoFeed = 'https://www.coindesk.com/arc/outboundfeeds/rss/';
     const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
     const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
-
     const [crypto, india, globalNews] = await Promise.all([
         rssToJson(cryptoFeed),
         rssToJson(indiaFeed),
         rssToJson(globalFeed)
     ]);
-
     newsData.crypto = crypto;
     newsData.india = india;
     newsData.global = globalNews;
-
     renderNews(currentTab);
 }
-
 function renderNews(tab){
     currentTab = tab;
     const news = newsData[tab] || [];
-    if(news.length === 0) {
-        newsFeatured.textContent = 'No news available';
-        newsTicker.innerHTML = '<span>No news available</span>';
-        carousel.innerHTML = '';
-        return;
-    }
+    if(news.length === 0) { newsFeatured.textContent = 'No news available'; newsTicker.innerHTML='<span>No news available</span>'; carousel.innerHTML=''; return; }
     newsFeatured.innerHTML = `<a href="${news[0].link}" target="_blank">${news[0].title}</a>`;
-
     const top3 = news.slice(0,3);
-    carousel.innerHTML = top3.map((item, i)=>{
-        return `<div class="carousel-item" style="transform:translateX(-${carouselIndex*100}%);">
+    carousel.innerHTML = top3.map((item,i)=>`<div class="carousel-item" style="transform:translateX(-${carouselIndex*100}%);">
             <a href="${item.link}" target="_blank"><strong>${item.title}</strong></a>
-            <p>${item.desc}</p>
-        </div>`;
-    }).join('');
-
-    const tickerArticles = news.slice(3,15).map((item,i)=>{
-        let color = '#ccc';
-        const titleLower = item.title.toLowerCase();
-        if(cryptoKeywords.some(k=>titleLower.includes(k))) color='#00ff7f';
-        if(indiaKeywords.some(k=>titleLower.includes(k))) color='#ffae00';
-        return `<a href="${item.link}" target="_blank" style="color:${color};margin-right:50px;">${item.title}</a>`;
-    }).join(' · ');
+            <p>${item.desc}</p></div>`).join('');
+    const tickerArticles = news.slice(3,15).map(item=>`<a href="${item.link}" target="_blank" style="color:#00ff7f;margin-right:50px;">${item.title}</a>`).join(' · ');
     newsTicker.innerHTML = `<span>${tickerArticles}</span>`;
 }
-
-tabs.forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-        tabs.forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        renderNews(btn.dataset.type);
-    });
-});
-
-setInterval(()=>{
-    if(!newsData[currentTab] || newsData[currentTab].length===0) return;
-    const length = Math.min(3, newsData[currentTab].length);
-    carouselIndex = (carouselIndex+1)%length;
-    const items = document.querySelectorAll('.carousel-item');
-    items.forEach((el,i)=>{
-        el.style.transform = `translateX(-${carouselIndex*100}%)`;
-    });
-},10000);
-
+tabs.forEach(btn=>{ btn.addEventListener('click', ()=>{ tabs.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderNews(btn.dataset.type); }); });
+setInterval(()=>{ if(!newsData[currentTab]||newsData[currentTab].length===0) return; const length=Math.min(3, newsData[currentTab].length); carouselIndex=(carouselIndex+1)%length; document.querySelectorAll('.carousel-item').forEach((el,i)=>{ el.style.transform=`translateX(-${carouselIndex*100}%)`; }); },10000);
 updateNewsData();
-setInterval(updateNewsData,600000);
 
-// ------------------- BTC/USD RSI Signals -------------------
-const priceEl = document.getElementById('btc-price');
-const tradeEntries = document.getElementById('trade-entries');
-const signalsBody = document.getElementById('signals-body');
-const RSI_PERIOD = 14;
-let closes = [];
-
-async function fetchCandles(){
-    try{
-        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
+// ---------------- BTC/USD price + live signals ----------------
+const btcPriceDiv = document.getElementById('btc-price');
+async function fetchBTCPrice(){
+    try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
         const data = await res.json();
-        closes = data.map(c=>parseFloat(c[4]));
-        calculateRSI();
-    } catch(err){ console.error(err);}
+        btcPriceDiv.textContent = 'BTC/USD: $'+data.bitcoin.usd;
+    } catch(err){ btcPriceDiv.textContent = 'Error fetching BTC price'; }
 }
+setInterval(fetchBTCPrice,5000); fetchBTCPrice();
 
-function calculateRSI(){
-    if(closes.length < RSI_PERIOD) return;
-    let gains=0, losses=0;
-    for(let i=1;i<closes.length;i++){
-        let diff=closes[i]-closes[i-1];
-        if(diff>0) gains+=diff; else losses+=Math.abs(diff);
-    }
-    const avgGain=gains/RSI_PERIOD;
-    const avgLoss=losses/RSI_PERIOD;
-    const rs=avgGain/avgLoss;
-    const rsi=100-(100/(1+rs));
-    updateTradeEntries(rsi, closes[closes.length-1]);
-    updateSignalsTable(rsi, closes[closes.length-1]);
-}
+const tradeEntriesDiv = document.getElementById('trade-entries');
+const signalsBody = document.querySelector('#signals-body tbody');
+let signalsData = [
+  {date:'2025-10-01',coin:'BTC/USD',entry:'45000',exit:'46000',pl:'+2.22%',status:'profit',time:'14:30',rsi:30},
+  {date:'2025-10-01',coin:'ETH/USD',entry:'3000',exit:'2900',pl:'-3.33%',status:'loss',time:'15:00',rsi:70},
+  {date:'2025-09-30',coin:'LTC/USD',entry:'150',exit:'155',pl:'+3.33%',status:'hold',time:'13:00',rsi:50}
+];
 
-function updateTradeEntries(rsi, price){
-    let action='';
-    if(rsi<30) action='buy';
-    else if(rsi>70) action='sell';
-    else action='hold';
-    priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
-    tradeEntries.innerHTML = `
-    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
-      <p>RSI: ${rsi.toFixed(2)}</p>
-      <p>Signal: ${action.toUpperCase()}</p>
-    </div>`;
-}
-
-function updateSignalsTable(rsi, price){
-    let action='';
-    if(rsi<30) action='buy';
-    else if(rsi>70) action='sell';
-    else action='hold';
-    const date = new Date().toLocaleDateString();
-    const time = new Date().toLocaleTimeString();
-    const exit = action==='buy'? (price*1.002).toFixed(2) : action==='sell'? (price*0.998).toFixed(2) : '-';
-    const pl = exit==='-'? '-' : (exit-price).toFixed(2);
+function renderSignals(){
+  signalsBody.innerHTML='';
+  signalsData.forEach(sig=>{
     const row = document.createElement('tr');
-    row.className = action;
-    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${pl>=0?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
-    signalsBody.prepend(row);
+    row.className=sig.status;
+    row.innerHTML=`<td>${sig.date}</td><td>${sig.coin}</td><td>${sig.entry}</td><td>${sig.exit}</td><td>${sig.pl}</td><td>${sig.status}</td><td>${sig.time}</td><td>${sig.rsi}</td>`;
+    row.addEventListener('click',()=>openModal(sig));
+    signalsBody.appendChild(row);
+  });
+}
+renderSignals();
+
+// Copy table
+function copyTable(){
+  let text = Array.from(signalsBody.querySelectorAll('tr')).map(r=>Array.from(r.querySelectorAll('td')).map(td=>td.innerText).join('\t')).join('\n');
+  navigator.clipboard.writeText(text).then(()=>alert('Signals copied!'));
 }
 
-const modal = document.getElementById("signalModal");
-const modalText = document.getElementById("modal-content-text");
-const spanClose = document.getElementsByClassName("close")[0];
-signalsBody.addEventListener('click', e=>{
-    const row = e.target.closest('tr');
-    if(!row) return;
-    const cells = row.children;
-    modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nExit: ${cells[3].textContent}\nP/L: ${cells[4].textContent}\nStatus: ${cells[5].textContent}\nTime: ${cells[6].textContent}\nRSI: ${cells[7].textContent}`;
-    modal.style.display = "block";
-});
-spanClose.onclick = ()=>{modal.style.display="none";}
-window.onclick = e=>{if(e.target==modal) modal.style.display="none";}
+// Modal
+const modal = document.getElementById('signalModal');
+const modalContentText = document.getElementById('modal-content-text');
+const spanClose = document.querySelector('.modal .close');
+function openModal(sig){
+  modal.style.display='block';
+  modalContentText.innerHTML=`Coin: ${sig.coin}<br>Entry: ${sig.entry}<br>Exit: ${sig.exit}<br>P/L: ${sig.pl}<br>Status: ${sig.status}<br>Time: ${sig.time}<br>RSI: ${sig.rsi}<br>Date: ${sig.date}`;
+}
+spanClose.onclick = ()=>modal.style.display='none';
+window.onclick = (e)=>{if(e.target==modal) modal.style.display='none';};
 
-fetchCandles();
-setInterval(fetchCandles,60000);
 </script>
-
 </body>
 </html>
