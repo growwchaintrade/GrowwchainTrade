@@ -126,7 +126,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <h2>Live Signals</h2>
 <table class="signals-table">
 <thead>
-<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Time</th><th>RSI</th></tr>
+<tr><th>Date</th><th>Coin</th><th>Entry</th><th>Exit</th><th>P/L</th><th>Status</th><th>Trend</th><th>Time</th><th>RSI</th></tr>
 </thead>
 <tbody id="signals-body">
 </tbody>
@@ -179,12 +179,11 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
-// ------------------- News + BTC/USD RSI -------------------
+// ------------------- News Section -------------------
 const newsFeatured = document.getElementById('news-featured');
 const newsTicker = document.getElementById('news-ticker');
 const carousel = document.getElementById('carousel');
 const tabs = document.querySelectorAll('#news-tabs button');
-
 let newsData = { crypto: [], india: [], global: [] };
 let currentTab = 'crypto';
 let carouselIndex = 0;
@@ -197,32 +196,18 @@ async function rssToJson(url) {
         const res = await fetch(api);
         const data = await res.json();
         if(!data.items) return [];
-        return data.items.map(item => ({
-            title: item.title,
-            link: item.link,
-            desc: item.description
-        }));
-    } catch(err){
-        console.error('RSS fetch error:', err);
-        return [];
-    }
+        return data.items.map(item => ({ title: item.title, link: item.link, desc: item.description }));
+    } catch(err){ console.error('RSS fetch error:', err); return []; }
 }
 
 async function updateNewsData() {
     const cryptoFeed = 'https://www.coindesk.com/arc/outboundfeeds/rss/';
     const indiaFeed = 'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms';
     const globalFeed = 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml';
-
-    const [crypto, india, globalNews] = await Promise.all([
-        rssToJson(cryptoFeed),
-        rssToJson(indiaFeed),
-        rssToJson(globalFeed)
-    ]);
-
+    const [crypto, india, globalNews] = await Promise.all([rssToJson(cryptoFeed), rssToJson(indiaFeed), rssToJson(globalFeed)]);
     newsData.crypto = crypto;
     newsData.india = india;
     newsData.global = globalNews;
-
     renderNews(currentTab);
 }
 
@@ -236,7 +221,6 @@ function renderNews(tab){
         return;
     }
     newsFeatured.innerHTML = `<a href="${news[0].link}" target="_blank">${news[0].title}</a>`;
-
     const top3 = news.slice(0,3);
     carousel.innerHTML = top3.map((item, i)=>{
         return `<div class="carousel-item" style="transform:translateX(-${carouselIndex*100}%);">
@@ -244,7 +228,6 @@ function renderNews(tab){
             <p>${item.desc}</p>
         </div>`;
     }).join('');
-
     const tickerArticles = news.slice(3,15).map((item,i)=>{
         let color = '#ccc';
         const titleLower = item.title.toLowerCase();
@@ -276,7 +259,7 @@ setInterval(()=>{
 updateNewsData();
 setInterval(updateNewsData,600000);
 
-// ------------------- BTC/USD RSI Signals -------------------
+// ------------------- RSI Signals -------------------
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
 const signalsBody = document.getElementById('signals-body');
@@ -296,62 +279,57 @@ function calculateRSI(){
     if(closes.length < RSI_PERIOD) return;
     let gains=0, losses=0;
     for(let i=1;i<closes.length;i++){
-        let diff=closes[i]-closes[i-1];
-        if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+        let diff = closes[i]-closes[i-1];
+        if(diff>0) gains+=diff;
+        else losses+=-diff;
     }
-    const avgGain=gains/RSI_PERIOD;
-    const avgLoss=losses/RSI_PERIOD;
-    const rs=avgGain/avgLoss;
-    const rsi=100-(100/(1+rs));
-    updateTradeEntries(rsi, closes[closes.length-1]);
-    updateSignalsTable(rsi, closes[closes.length-1]);
+    const avgGain = gains/RSI_PERIOD;
+    const avgLoss = losses/RSI_PERIOD;
+    let rsi = 100-(100/(1+(avgGain/avgLoss)));
+    displayTrade(rsi, closes[closes.length-1]);
 }
 
-function updateTradeEntries(rsi, price){
-    let action='';
-    if(rsi<30) action='buy';
-    else if(rsi>70) action='sell';
-    else action='hold';
-    priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
-    tradeEntries.innerHTML = `
-    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
-      <p>RSI: ${rsi.toFixed(2)}</p>
-      <p>Signal: ${action.toUpperCase()}</p>
-    </div>`;
-}
+function displayTrade(rsi, price){
+    priceEl.textContent = `BTC/USD: $${price.toFixed(2)} | RSI: ${rsi.toFixed(2)}`;
+    let status='hold', trend='Neutral';
+    if(rsi<30){status='buy'; trend='Bullish';}
+    else if(rsi>70){status='sell'; trend='Bearish';}
+    else{status='hold'; trend='Neutral';}
+    const card = document.createElement('div');
+    card.className = `trade-card ${status}`;
+    card.innerHTML = `<h3>${status.toUpperCase()}</h3>
+        <p>Price: $${price.toFixed(2)}</p>
+        <p>TP: $${(price+15).toFixed(2)} | SL: $${(price-5).toFixed(2)}</p>
+        <p>Trend: ${trend}</p>`;
+    tradeEntries.prepend(card);
 
-function updateSignalsTable(rsi, price){
-    let action='';
-    if(rsi<30) action='buy';
-    else if(rsi>70) action='sell';
-    else action='hold';
-    const date = new Date().toLocaleDateString();
-    const time = new Date().toLocaleTimeString();
-    const exit = action==='buy'? (price*1.002).toFixed(2) : action==='sell'? (price*0.998).toFixed(2) : '-';
-    const pl = exit==='-'? '-' : (exit-price).toFixed(2);
+    // Add to signals table
     const row = document.createElement('tr');
-    row.className = action;
-    row.innerHTML = `<td>${date}</td><td>BTC/USDT</td><td>${price.toFixed(2)}</td><td>${exit}</td><td class="${(pl!=='-' && parseFloat(pl)>=0)?'profit':'loss'}">${pl}</td><td>${action.toUpperCase()}</td><td>${time}</td><td>${rsi.toFixed(2)}</td>`;
+    row.className=status;
+    const now=new Date();
+    row.innerHTML=`<td>${now.toLocaleDateString()}</td>
+        <td>BTC</td>
+        <td>${price.toFixed(2)}</td>
+        <td>${status!=='hold'? (status==='buy'? (price+15).toFixed(2):(price-15).toFixed(2)):'-'}</td>
+        <td class="${status==='buy'||status==='sell'?'profit':'loss'}">${status==='hold'?'-':'$15'}</td>
+        <td>${status.toUpperCase()}</td>
+        <td>${trend}</td>
+        <td>${now.toLocaleTimeString()}</td>
+        <td>${rsi.toFixed(2)}</td>`;
     signalsBody.prepend(row);
+
+    // Modal
+    row.addEventListener('click', ()=>{
+        document.getElementById('modal-content-text').innerHTML=card.innerHTML;
+        document.getElementById('signalModal').style.display='block';
+    });
 }
 
-// Modal for each signal
-const modal = document.getElementById("signalModal");
-const modalText = document.getElementById("modal-content-text");
-const spanClose = document.getElementsByClassName("close")[0];
-signalsBody.addEventListener('click', e=>{
-    const row = e.target.closest('tr');
-    if(!row) return;
-    const cells = row.children;
-    modalText.textContent = `Date: ${cells[0].textContent}\nCoin: ${cells[1].textContent}\nEntry: ${cells[2].textContent}\nExit: ${cells[3].textContent}\nP/L: ${cells[4].textContent}\nStatus: ${cells[5].textContent}\nTime: ${cells[6].textContent}\nRSI: ${cells[7].textContent}`;
-    modal.style.display = "block";
-});
-spanClose.onclick = ()=>{modal.style.display="none";}
-window.onclick = e=>{if(e.target==modal) modal.style.display="none";}
-
-fetchCandles();
 setInterval(fetchCandles,60000);
-</script>
 
+// Modal close
+document.querySelector('.close').onclick=function(){document.getElementById('signalModal').style.display='none';};
+window.onclick=function(e){if(e.target==document.getElementById('signalModal')) document.getElementById('signalModal').style.display='none';};
+</script>
 </body>
 </html>
