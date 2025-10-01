@@ -168,3 +168,48 @@ async function fetchCandles(){
 
 function calculateRSI(){
   if(closes.length < RSI_PERIOD) return;
+  let gains=0, losses=0;
+  for(let i=1;i<closes.length;i++){
+    let diff=closes[i]-closes[i-1];
+    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+  }
+  const avgGain=gains/RSI_PERIOD;
+  const avgLoss=losses/RSI_PERIOD;
+  const rs=avgGain/avgLoss;
+  const rsi=100-(100/(1+rs));
+  updateTradeEntries(rsi, closes[closes.length-1]);
+}
+
+function updateTradeEntries(rsi, price){
+  let action='';
+  if(rsi<30) action='buy';
+  else if(rsi>70) action='sell';
+  else action='hold';
+  priceEl.textContent = `Current Price: ${price.toFixed(2)} USD`;
+  tradeEntries.innerHTML = `
+    <div class="trade-card ${action==='buy'?'buy':action==='sell'?'sell':'hold'}">
+      <p>RSI: ${rsi.toFixed(2)}</p>
+      <p>Signal: ${action.toUpperCase()}</p>
+    </div>`;
+}
+
+// Initial fetch and refresh every minute
+fetchCandles();
+setInterval(fetchCandles, 60000);
+
+// Live News Ticker
+async function fetchNews(){
+  try{
+    const res = await fetch('https://newsapi.org/v2/top-headlines?country=in&apiKey=YOUR_API_KEY');
+    const data = await res.json();
+    const headlines = data.articles.map(a=>a.title).join(' · ');
+    document.getElementById('news-ticker').innerHTML = `<span>${headlines}</span>`;
+  } catch(err){console.error(err);}
+}
+
+fetchNews();
+setInterval(fetchNews,600000); // Refresh every 10 mins
+</script>
+
+</body>
+</html>
