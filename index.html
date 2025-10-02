@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GrowwChainTrade - Live RSI & News</title>
+<title>GrowwChainTrade - Tabbed Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
@@ -16,14 +16,11 @@ nav ul li{list-style:none;}
 .cta-buttons a{margin-left:15px;padding:8px 16px;border-radius:5px;font-weight:700;}
 .join-free{background:#00ff7f;color:#000;}
 .join-vip{background:#ff007f;color:#fff;}
-.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 20px;background:linear-gradient(135deg,#0d1117,#161b22);}
-.hero h1{font-size:2.8rem;margin-bottom:20px;color:#00ff7f;}
-.hero p{font-size:1.2rem;margin-bottom:30px;color:#ccc;}
-.hero .buttons a{margin:0 10px;padding:12px 24px;border-radius:6px;font-weight:700;}
-.hero .buttons .join-free{background:#00ff7f;color:#000;}
-.hero .buttons .join-vip{background:#ff007f;color:#fff;}
-section{padding:60px 20px;}
-section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
+.tab-menu{display:flex;justify-content:center;background:#161b22;}
+.tab-menu button{padding:12px 20px;margin:5px;border:none;border-radius:5px;background:#222;color:#00ff7f;font-weight:700;cursor:pointer;}
+.tab-menu button.active{background:#00ff7f;color:#000;}
+.tab-content{display:none;padding:40px 20px;}
+.tab-content.active{display:block;}
 .charts-grid{display:grid;grid-template-columns:1fr;gap:20px;}
 .tradingview-iframe{width:100%;height:500px;border:none;border-radius:10px;}
 #btc-price{text-align:center;font-size:1.5rem;margin-bottom:15px;}
@@ -76,30 +73,26 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <div class="logo">GrowwChainTrade</div>
 <nav>
 <ul>
-<li><a href="#hero">Home</a></li>
-<li><a href="#charts">Charts</a></li>
-<li><a href="#signals">Signals</a></li>
-<li><a href="#membership">VIP</a></li>
-<li><a href="#telegram">Telegram</a></li>
-<li><a href="#news">News</a></li>
+<li><a href="#tabs">Home</a></li>
 </ul>
 </nav>
 <div class="cta-buttons">
-<a href="#telegram" class="join-free">Join Free</a>
-<a href="#membership" class="join-vip">Join VIP</a>
+<a href="#tabs" class="join-free">Join Free</a>
+<a href="#tabs" class="join-vip">Join VIP</a>
 </div>
 </header>
 
-<section class="hero" id="hero">
-<h1>Grow Together in Crypto Trading</h1>
-<p>Live RSI-based BTC/USD entries, signals, charts, and news.</p>
-<div class="buttons">
-<a href="#telegram" class="join-free">Join Free</a>
-<a href="#membership" class="join-vip">Join VIP</a>
+<!-- Tab Menu -->
+<div class="tab-menu">
+<button class="tab-btn active" data-tab="news-tab">News</button>
+<button class="tab-btn" data-tab="charts-tab">Live Charts</button>
+<button class="tab-btn" data-tab="rsi-tab">Live RSI</button>
+<button class="tab-btn" data-tab="signals-tab">Live Signals</button>
+<button class="tab-btn" data-tab="membership-tab">Membership</button>
 </div>
-</section>
 
-<!-- News Section -->
+<!-- Tab Contents -->
+<div id="news-tab" class="tab-content active">
 <div id="news-tabs">
 <button class="active" data-type="crypto">Crypto News</button>
 <button data-type="india">Indian News</button>
@@ -108,21 +101,22 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <div id="news-featured">Loading featured article...</div>
 <div id="carousel"></div>
 <div id="news-ticker"><span>Loading news...</span></div>
+</div>
 
-<section id="charts">
+<div id="charts-tab" class="tab-content">
 <h2>Live Crypto Charts</h2>
 <div class="charts-grid">
 <iframe class="tradingview-iframe" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=60&theme=dark"></iframe>
 </div>
-</section>
+</div>
 
-<section id="live-btc">
+<div id="rsi-tab" class="tab-content">
 <h2>BTC/USD Live RSI Entries</h2>
 <div id="btc-price">Fetching price...</div>
 <div id="trade-entries"></div>
-</section>
+</div>
 
-<section id="signals">
+<div id="signals-tab" class="tab-content">
 <h2>Live Signals</h2>
 <table class="signals-table">
 <thead>
@@ -131,9 +125,9 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <tbody id="signals-body">
 </tbody>
 </table>
-</section>
+</div>
 
-<section id="membership">
+<div id="membership-tab" class="tab-content">
 <h2>Membership Plans</h2>
 <div class="membership">
 <div class="card">
@@ -155,13 +149,7 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <a href="https://t.me/+8xAOWzzsvSIwMjA1" class="btn-vip">Join VIP</a>
 </div>
 </div>
-</section>
-
-<section class="telegram-section" id="telegram">
-<h2>Join Our Telegram Community</h2>
-<a href="https://t.me/+8xAOWzzsvSIwMjA1" class="telegram-free">Join Free Channel</a>
-<a href="https://t.me/+8xAOWzzsvSIwMjA1" class="telegram-vip">Join VIP</a>
-</section>
+</div>
 
 <!-- Modal -->
 <div id="signalModal" class="modal">
@@ -179,6 +167,18 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </footer>
 
 <script>
+// ------------------- Tab Functionality -------------------
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    tabButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tabContents.forEach(c => c.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
 // ------------------- News Section -------------------
 const newsFeatured = document.getElementById('news-featured');
 const newsTicker = document.getElementById('news-ticker');
@@ -259,71 +259,42 @@ setInterval(()=>{
 updateNewsData();
 setInterval(updateNewsData,600000);
 
-// ------------------- Live RSI (Optimized) -------------------
+// ------------------- RSI Signals -------------------
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
 const signalsBody = document.getElementById('signals-body');
-let closes = [];
 const RSI_PERIOD = 14;
+let closes = [];
 
-// 1️⃣ Initial fetch for last 15 candles
-async function initCloses() {
-    try {
+async function fetchCandles(){
+    try{
         const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
         const data = await res.json();
-        closes = data.map(c => parseFloat(c[4]));
+        closes = data.map(c=>parseFloat(c[4]));
         calculateRSI();
-    } catch(err){ console.error('Initial fetch error:', err); }
+    } catch(err){ console.error(err);}
 }
 
-initCloses();
-
-// 2️⃣ Fetch latest candle every 10 seconds
-async function fetchLatestCandle() {
-    try {
-        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2`);
-        const data = await res.json();
-        const latestClose = parseFloat(data[data.length - 1][4]);
-
-        if(closes.length < RSI_PERIOD + 1) {
-            closes.push(latestClose);
-        } else {
-            closes.shift();
-            closes.push(latestClose);
-        }
-
-        calculateRSI();
-    } catch(err){ console.error('Latest candle fetch error:', err); }
-}
-
-setInterval(fetchLatestCandle, 10000);
-
-// 3️⃣ RSI calculation
-function calculateRSI() {
+function calculateRSI(){
     if(closes.length < RSI_PERIOD) return;
-
-    let gains = 0, losses = 0;
-    for(let i=1; i<closes.length; i++){
-        const diff = closes[i] - closes[i-1];
-        if(diff > 0) gains += diff;
-        else losses += -diff;
+    let gains=0, losses=0;
+    for(let i=1;i<closes.length;i++){
+        let diff = closes[i]-closes[i-1];
+        if(diff>0) gains+=diff;
+        else losses+=-diff;
     }
-
-    const avgGain = gains / RSI_PERIOD;
-    const avgLoss = losses / RSI_PERIOD;
-    const rsi = 100 - (100 / (1 + avgGain / avgLoss));
-
-    displayTrade(rsi, closes[closes.length - 1]);
+    const avgGain = gains/RSI_PERIOD;
+    const avgLoss = losses/RSI_PERIOD;
+    let rsi = 100-(100/(1+(avgGain/avgLoss)));
+    displayTrade(rsi, closes[closes.length-1]);
 }
 
-// 4️⃣ Display trade card and table
 function displayTrade(rsi, price){
     priceEl.textContent = `BTC/USD: $${price.toFixed(2)} | RSI: ${rsi.toFixed(2)}`;
     let status='hold', trend='Neutral';
     if(rsi<30){status='buy'; trend='Bullish';}
     else if(rsi>70){status='sell'; trend='Bearish';}
     else{status='hold'; trend='Neutral';}
-
     const card = document.createElement('div');
     card.className = `trade-card ${status}`;
     card.innerHTML = `<h3>${status.toUpperCase()}</h3>
@@ -333,9 +304,9 @@ function displayTrade(rsi, price){
     tradeEntries.prepend(card);
 
     const row = document.createElement('tr');
-    row.className = status;
-    const now = new Date();
-    row.innerHTML = `<td>${now.toLocaleDateString()}</td>
+    row.className=status;
+    const now=new Date();
+    row.innerHTML=`<td>${now.toLocaleDateString()}</td>
         <td>BTC</td>
         <td>${price.toFixed(2)}</td>
         <td>${status!=='hold'? (status==='buy'? (price+15).toFixed(2):(price-15).toFixed(2)):'-'}</td>
@@ -347,15 +318,16 @@ function displayTrade(rsi, price){
     signalsBody.prepend(row);
 
     row.addEventListener('click', ()=>{
-        document.getElementById('modal-content-text').innerHTML = card.innerHTML;
-        document.getElementById('signalModal').style.display = 'block';
+        document.getElementById('modal-content-text').innerHTML=card.innerHTML;
+        document.getElementById('signalModal').style.display='block';
     });
 }
 
-// Modal close
-document.querySelector('.close').onclick = function(){ document.getElementById('signalModal').style.display = 'none'; };
-window.onclick = function(e){ if(e.target == document.getElementById('signalModal')) document.getElementById('signalModal').style.display = 'none'; };
-</script>
+setInterval(fetchCandles,60000);
 
+// Modal close
+document.querySelector('.close').onclick=function(){document.getElementById('signalModal').style.display='none';};
+window.onclick=function(e){if(e.target==document.getElementById('signalModal')) document.getElementById('signalModal').style.display='none';};
+</script>
 </body>
 </html>
