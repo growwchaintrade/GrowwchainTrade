@@ -85,8 +85,8 @@ footer{background:#161b22;text-align:center;padding:20px;}
 </ul>
 </nav>
 <div class="cta-buttons">
-<a href="https://t.me/+8xAOWzzsvSIwMjA1" class="join-free">Join Free</a>
-<a href="https://t.me/+8xAOWzzsvSIwMjA1" class="join-vip">Join VIP</a>
+<a href="#telegram" class="join-free">Join Free</a>
+<a href="#membership" class="join-vip">Join VIP</a>
 </div>
 </header>
 
@@ -94,8 +94,8 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <h1>Grow Together in Crypto Trading</h1>
 <p>Live RSI-based BTC/USD entries, signals, charts, and news.</p>
 <div class="buttons">
-<a href="https://t.me/+8xAOWzzsvSIwMjA1" class="join-free">Join Free</a>
-<a href="https://t.me/+8xAOWzzsvSIwMjA1" class="join-vip">Join VIP</a>
+<a href="#telegram" class="join-free">Join Free</a>
+<a href="#membership" class="join-vip">Join VIP</a>
 </div>
 </section>
 
@@ -259,42 +259,71 @@ setInterval(()=>{
 updateNewsData();
 setInterval(updateNewsData,600000);
 
-// ------------------- RSI Signals -------------------
+// ------------------- Live RSI (Optimized) -------------------
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
 const signalsBody = document.getElementById('signals-body');
-const RSI_PERIOD = 14;
 let closes = [];
+const RSI_PERIOD = 14;
 
-async function fetchCandles(){
-    try{
+// 1️⃣ Initial fetch for last 15 candles
+async function initCloses() {
+    try {
         const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=${RSI_PERIOD+1}`);
         const data = await res.json();
-        closes = data.map(c=>parseFloat(c[4]));
+        closes = data.map(c => parseFloat(c[4]));
         calculateRSI();
-    } catch(err){ console.error(err);}
+    } catch(err){ console.error('Initial fetch error:', err); }
 }
 
-function calculateRSI(){
+initCloses();
+
+// 2️⃣ Fetch latest candle every 10 seconds
+async function fetchLatestCandle() {
+    try {
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2`);
+        const data = await res.json();
+        const latestClose = parseFloat(data[data.length - 1][4]);
+
+        if(closes.length < RSI_PERIOD + 1) {
+            closes.push(latestClose);
+        } else {
+            closes.shift();
+            closes.push(latestClose);
+        }
+
+        calculateRSI();
+    } catch(err){ console.error('Latest candle fetch error:', err); }
+}
+
+setInterval(fetchLatestCandle, 10000);
+
+// 3️⃣ RSI calculation
+function calculateRSI() {
     if(closes.length < RSI_PERIOD) return;
-    let gains=0, losses=0;
-    for(let i=1;i<closes.length;i++){
-        let diff = closes[i]-closes[i-1];
-        if(diff>0) gains+=diff;
-        else losses+=-diff;
+
+    let gains = 0, losses = 0;
+    for(let i=1; i<closes.length; i++){
+        const diff = closes[i] - closes[i-1];
+        if(diff > 0) gains += diff;
+        else losses += -diff;
     }
-    const avgGain = gains/RSI_PERIOD;
-    const avgLoss = losses/RSI_PERIOD;
-    let rsi = 100-(100/(1+(avgGain/avgLoss)));
-    displayTrade(rsi, closes[closes.length-1]);
+
+    const avgGain = gains / RSI_PERIOD;
+    const avgLoss = losses / RSI_PERIOD;
+    const rsi = 100 - (100 / (1 + avgGain / avgLoss));
+
+    displayTrade(rsi, closes[closes.length - 1]);
 }
 
+// 4️⃣ Display trade card and table
 function displayTrade(rsi, price){
     priceEl.textContent = `BTC/USD: $${price.toFixed(2)} | RSI: ${rsi.toFixed(2)}`;
     let status='hold', trend='Neutral';
     if(rsi<30){status='buy'; trend='Bullish';}
     else if(rsi>70){status='sell'; trend='Bearish';}
     else{status='hold'; trend='Neutral';}
+
     const card = document.createElement('div');
     card.className = `trade-card ${status}`;
     card.innerHTML = `<h3>${status.toUpperCase()}</h3>
@@ -303,11 +332,10 @@ function displayTrade(rsi, price){
         <p>Trend: ${trend}</p>`;
     tradeEntries.prepend(card);
 
-    // Add to signals table
     const row = document.createElement('tr');
-    row.className=status;
-    const now=new Date();
-    row.innerHTML=`<td>${now.toLocaleDateString()}</td>
+    row.className = status;
+    const now = new Date();
+    row.innerHTML = `<td>${now.toLocaleDateString()}</td>
         <td>BTC</td>
         <td>${price.toFixed(2)}</td>
         <td>${status!=='hold'? (status==='buy'? (price+15).toFixed(2):(price-15).toFixed(2)):'-'}</td>
@@ -318,18 +346,16 @@ function displayTrade(rsi, price){
         <td>${rsi.toFixed(2)}</td>`;
     signalsBody.prepend(row);
 
-    // Modal
     row.addEventListener('click', ()=>{
-        document.getElementById('modal-content-text').innerHTML=card.innerHTML;
-        document.getElementById('signalModal').style.display='block';
+        document.getElementById('modal-content-text').innerHTML = card.innerHTML;
+        document.getElementById('signalModal').style.display = 'block';
     });
 }
 
-setInterval(fetchCandles,60000);
-
 // Modal close
-document.querySelector('.close').onclick=function(){document.getElementById('signalModal').style.display='none';};
-window.onclick=function(e){if(e.target==document.getElementById('signalModal')) document.getElementById('signalModal').style.display='none';};
+document.querySelector('.close').onclick = function(){ document.getElementById('signalModal').style.display = 'none'; };
+window.onclick = function(e){ if(e.target == document.getElementById('signalModal')) document.getElementById('signalModal').style.display = 'none'; };
 </script>
+
 </body>
 </html>
