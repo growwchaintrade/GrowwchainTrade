@@ -63,10 +63,22 @@ section h2{font-size:2rem;color:#00ff7f;margin-bottom:30px;text-align:center;}
 .carousel-item{flex:0 0 100%;padding:10px;background:#161b22;margin-right:10px;border-radius:10px;transition:transform 0.5s;}
 #news-ticker{background:#161b22;padding:10px;overflow:hidden;white-space:nowrap;margin-bottom:30px;}
 #news-ticker span{display:inline-block;animation:scroll 120s linear infinite;}
-@keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+
+/* Modal */
 .modal {display:none;position:fixed;z-index:2000;padding-top:100px;left:0;top:0;width:100%;height:100%;overflow:auto;background:rgba(0,0,0,0.8);}
 .modal-content {background:#161b22;margin:auto;padding:20px;border-radius:10px;width:90%;max-width:500px;color:#fff;}
 .close {color:#ff007f;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
+
+/* Register Section */
+#register-section{background:#161b22;padding:40px 20px;border-radius:10px;margin:50px auto;max-width:500px;text-align:center;}
+#register-section input{width:80%;padding:10px;margin:10px 0;border-radius:5px;border:none;font-size:1rem;}
+#register-section button{padding:12px 25px;font-weight:700;border:none;border-radius:6px;background:#00ff7f;color:#000;cursor:pointer;}
+
+/* Comments Section */
+#comments-section{background:#161b22;padding:40px 20px;border-radius:10px;margin:50px auto;max-width:700px;}
+#comments-section input,#comments-section textarea{width:90%;padding:10px;margin:10px 0;border-radius:5px;border:none;font-size:1rem;}
+#comments-section button{padding:10px 20px;font-weight:700;border:none;border-radius:6px;background:#ff007f;color:#fff;cursor:pointer;}
+.comment-card{background:#222;padding:15px;border-radius:8px;margin-bottom:10px;}
 footer{background:#161b22;text-align:center;padding:20px;}
 </style>
 </head>
@@ -155,6 +167,28 @@ footer{background:#161b22;text-align:center;padding:20px;}
 <a href="https://t.me/+8xAOWzzsvSIwMjA1" class="btn-vip">Join VIP</a>
 </div>
 </div>
+</section>
+
+<!-- New Register Section -->
+<section id="register-section">
+<h2>Register for GrowwChainTrade</h2>
+<input type="text" id="reg-name" placeholder="Your Name">
+<input type="email" id="reg-email" placeholder="Your Email">
+<input type="password" id="reg-password" placeholder="Password">
+<br>
+<button onclick="registerUser()">Register</button>
+<p id="register-message" style="margin-top:10px;color:#00ff7f;"></p>
+</section>
+
+<!-- New Comments Section -->
+<section id="comments-section">
+<h2>Viewer Comments</h2>
+<input type="text" id="comment-name" placeholder="Your Name">
+<input type="email" id="comment-email" placeholder="Your Email (optional)">
+<textarea id="comment-text" rows="3" placeholder="Your Comment"></textarea>
+<br>
+<button onclick="submitComment()">Submit Comment</button>
+<div id="comments-list" style="margin-top:20px;"></div>
 </section>
 
 <section class="telegram-section" id="telegram">
@@ -259,7 +293,7 @@ setInterval(()=>{
 updateNewsData();
 setInterval(updateNewsData,600000);
 
-// ------------------- RSI Signals (Faster Fetch) -------------------
+// ------------------- RSI Signals -------------------
 const priceEl = document.getElementById('btc-price');
 const tradeEntries = document.getElementById('trade-entries');
 const signalsBody = document.getElementById('signals-body');
@@ -323,12 +357,55 @@ function displayTrade(rsi, price){
     });
 }
 
-// Faster RSI: fetch every 10 seconds
+// Fetch every 10 seconds
 setInterval(fetchCandles,10000);
 
 // Modal close
 document.querySelector('.close').onclick=function(){document.getElementById('signalModal').style.display='none';};
 window.onclick=function(e){if(e.target==document.getElementById('signalModal')) document.getElementById('signalModal').style.display='none';};
+
+// ------------------- Register Section -------------------
+function registerUser(){
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value.trim();
+    const messageEl = document.getElementById('register-message');
+    if(!name || !email || !password){
+        messageEl.style.color='#ff4d4d';
+        messageEl.textContent = 'Please fill all fields.';
+        return;
+    }
+    messageEl.style.color='#00ff7f';
+    messageEl.textContent = 'Thank you! You’re registered.';
+    document.getElementById('reg-name').value='';
+    document.getElementById('reg-email').value='';
+    document.getElementById('reg-password').value='';
+}
+
+// ------------------- Comments Section -------------------
+let commentsArray = [];
+
+function submitComment(){
+    const name = document.getElementById('comment-name').value.trim();
+    const comment = document.getElementById('comment-text').value.trim();
+    if(!name || !comment){
+        alert('Please enter your name and comment.');
+        return;
+    }
+    const commentObj = {name, comment};
+    commentsArray.push(commentObj);
+    renderComments();
+    document.getElementById('comment-name').value='';
+    document.getElementById('comment-email').value='';
+    document.getElementById('comment-text').value='';
+}
+
+function renderComments(){
+    const listEl = document.getElementById('comments-list');
+    listEl.innerHTML = commentsArray.map(c=>{
+        return `<div class="comment-card"><strong>${c.name}</strong>: ${c.comment}</div>`;
+    }).join('');
+}
 </script>
 </body>
 </html>
